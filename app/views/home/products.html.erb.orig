@@ -1,0 +1,76 @@
+<%=@sku.inspect if defined? @sku%>
+<br /><br />
+<% @skus.each do |sku| %>
+	<%=sku.inspect%>
+	<br />
+<% end if defined? @skus %>
+<br /><br />
+<% @brands.each do |brand| %>
+	<%=brand.inspect%>
+	<br />
+<% end if defined? @brands %>
+<br /><br />
+<% @categories.each do |cat| %>
+	<%=cat.inspect%>
+	<br />
+<% end if defined? @categories %>
+<br /><br />
+
+<!-- <h1>Home#products</h1>
+<p>Find me in app/views/home/products.html.erb</p> -->
+<!-- <form method="post">
+<div id="tabcontainer">
+<div id="tabs">
+<input type="submit" class="activesubmit" name="All Products" value="Tab 1" />
+
+<input type="submit" name="Brands" value="Tab 2" />
+
+<input type="submit" name="Bla bla" value="Tab 3" />
+</div>
+<div id="tabformcontent">
+
+</div>
+</div>
+</form> -->
+
+<%= stylesheet_link_tag "ss-side-tabs-style.css" %>
+<%= javascript_include_tag 'products.js' %>
+
+<SCRIPT language="javascript">
+
+</SCRIPT>
+
+<div class="ss-products-side-tabs-box">
+	<div class="header">
+		<h1>Categories</h1>
+	</div>
+</div>
+
+<div class="ss-products-main-box">
+	<!-- This is where the dynamic element addition -->
+	<div class="ss-products-box">
+		<div class="ss-product-box">
+			<img class="ss-product-image" src="smiley.gif" alt="Some Product Picture" />
+			<div class="ss-product-name">
+				<h2>Product Name:</h2>
+				<h3>Bag from Bla Bla Bla</h3>
+			</div>
+			<div class="ss-product-price">
+				<h2>Product Price:</h2>
+				<h3>$100.00</h3>
+			</div>
+			<div class="ss-product-desc">
+				<h2>Product Description:</h2>
+				<h3>Bla bla bla</h3>
+			</div>
+		</div>
+	</div>
+	<!-- END -->
+	
+	<% table(@posts, %w{ID title}) do |post, klass| -%>
+	    <tr class="<%= klass %>">
+	      <td><%= post.id</td>
+	      <td><%= post.title </td>
+	    </tr>
+	<% end -%>
+</div>

@@ -1,0 +1,91 @@
+/*
+	CSS side tabs using submit buttons
+	Seth Duffey sethduffey@gmail.com
+
+*/
+
+* {margin:0px;}
+body {
+	/*background:#eeeee7;*/
+	font-family:trebuchet ms, Verdana, Arial, Helvetica, sans-serif;
+	font-size:.9em;
+	/* margin:30px; */
+	margin:0;
+}
+.clear {clear:both;}
+
+#tabcontainer {
+	width:100%; /* 760px */
+}
+
+#tabcontainer #tabs {
+	position:relative;
+	float:left;
+	z-index:10;
+	margin-top:10px;
+	width:120px;
+	height:1%;
+	margin-left:15px;
+}
+
+#tabcontainer #tabs input {
+	background:#eee;
+	color:#444;
+	width:119px;
+	display:block;
+	background:url(/images/products-side-tabs-images/side-tab-bg-off.gif) no-repeat;
+	border:none;
+	cursor:pointer;
+	padding:0px 0px 0px 10px;
+	margin:0px 0px 5px 0px;
+	font-size:11px;
+	font-family:trebuchet ms,verdana,arial,helvetica,sans-serif;
+	font-weight:normal;
+	height:24px;
+	letter-spacing:0px;
+	text-align:left;
+}
+
+#tabcontainer #tabs input.activesubmit, #tabcontainer #tabs input.activesubmit:hover {
+	background:#fff;
+	font-weight:bold;
+	width:120px;
+	border-right:#fff 1px solid;
+	border:none;
+	color:#0033CC;
+	background:url(/images/products-side-tabs-images/side-tab-bg.gif) no-repeat;
+	padding:0px 0px 0px 6px;
+	cursor:default;
+}
+
+#tabcontainer #tabs input:hover {
+	color:#0033CC;
+	background:url(/images/products-side-tabs-images/side-tab-bg-hov.gif) no-repeat;
+}
+
+#tabcontainer #tabformcontent {
+	position:relative;
+	float:left;
+	padding:6px 10px;
+	margin:0px 0px 0px -1px;
+	border:#765 1px solid;
+	background:#fff url(/images/products-side-tabs-images/tabcontent-bg.png) no-repeat right bottom;
+	min-height:200px;
+	z-index:-1;
+	width:77%; /* 560px */
+}
+
+
+#tabcontainer #tabformcontent h1 {
+	font-family:lucida sans unicode,trebuchet ms,Verdana,Arial,Helvetica,sans-serif;
+	color:rgb(87, 87, 119);
+	border-bottom:rgb(225, 225, 225) 2px solid;
+	margin-bottom:4px;
+	font-size:1.3em;
+	text-align:right;
+	padding-right:20px;
+}
+
+#tabcontainer #tabformcontent p {
+	margin:10px 2px 16px 2px;
+}

@@ -1,0 +1,263 @@
+/* margin-left 130px */
+
+.ss-header-box {
+	width: 1000px;
+	margin-left: 130px;
+	margin-top: 20px;
+}
+
+.ss-header-child-box {
+	position: relative;
+	margin-left:1px;
+	width:946px;
+	height:65px;
+	/* border: 1px solid #C3C4C4; */
+	background: #F8F8FF;
+}
+
+.ss-news-box-layout {
+	margin-left:130px;
+	width:944px;
+	height:40px;
+	border: 1px solid #C3C4C4;
+	border-top-style: hidden;
+	border-bottom-style: hidden;
+	bottom:0px;
+	position:relative;
+}
+
+.ss-m9-image-box {
+	position:relative;
+	left:20px;
+}
+
+.ss-search-box-layout {
+	position:relative;
+	left:100px;
+	bottom:40px;
+}
+
+.ss-search-box-layout #site-search {
+	width:338px;
+	height:20px;
+	font-size:18px;
+}
+
+.ss-search-box-layout #search-button {
+	left: 350px;
+	position: relative;
+	bottom: 25px;
+	height: 20px;
+}
+
+.ss-products-body {
+	width:100%;
+	margin-bottom: -600px;
+}
+
+.ss-products-side-box {
+	position:relative;
+	border: 1px solid #C3C4C4;
+	margin: 40px 0 0 130px;
+	width: 178px;
+	height: 400px;
+	margin-bottom: 20px;
+	padding-bottom: 9px;
+}
+
+.ss-products-side-box .categories-header {
+	background:#FFD700;
+	height: 40px;
+}
+
+.ss-products-side-box .categories-header h1 {
+	text-transform: uppercase;
+	font-size: 20px;
+	text-align: center;
+	padding-top: 7px;
+}
+
+.ss-products-side-box .brands-header {
+	background:#F5F5DC;
+	height: 40px;
+}
+
+.ss-products-side-box .brands-header h1 {
+	text-transform: uppercase;
+	font-size: 20px;
+	text-align: center;
+	padding-top: 7px;
+}
+
+.ss-products-side-box .content {
+	border: 1px solid #C3C4C4;
+	height: 300px;
+	width: 170px;
+	margin-left: 3px;
+	margin-top: 3px;
+}
+
+.ss-products-side-box .content h3 {
+	text-align: center;
+	font-size: 17px;
+}
+
+.ss-products-side-box .see-all {
+	text-align: center;
+	font-size: 15px;
+	margin-top:25px;
+}
+
+.ss-products-side-box .see-all a {
+	text-decoration: none;
+}
+
+.ss-products-categories-box {
+	border: 1px solid #C3C4C4;
+	height: 800px;
+	width: 947px;
+	margin: 40px 0 30px 130px;
+}
+
+/*
+.ss-products-main-box {
+	position:relative;
+	left:350px;
+	bottom: 431px;
+	border: 1px solid #C3C4C4;
+	width: 727px;
+	height: 800px;
+}
+*/
+
+.ss-products-main-box {
+	position:absolute;
+	left:350px;
+	top: 197px;
+	/* bottom: 882px; */
+	border: 1px solid #C3C4C4;
+	width: 725px;
+}
+
+.ss-products-main-box .ss-products-box {
+	position:static;
+	border: 1px solid #C3C4C4;
+	margin: 1em 1em 1em 1em;
+}
+
+.ss-product-box {
+	margin: 1em 1em 1em 1em;
+	border: 1px solid #C3C4C4;
+	height:310px;
+	position: static;
+}
+
+.ss-product-box .ss-product-image {
+	border: 1px solid #C3C4C4;
+	height:175px;
+	width:225px;
+	margin: 1em 1em 0em 1em;
+}
+
+.ss-product-box .ss-product-name {
+	width: 150px;
+	height: 20px;
+	left: 250px;
+	bottom: 182px;
+	position:relative;
+}
+
+/* This is for "Product Name:" "Product Price:" "Product Description:" "Product Brand:" */
+.ss-product-box h2 {
+	color: #808080;
+	font-style: normal;
+	font-size: 15px;
+}
+
+.ss-product-box h3 {
+	font-size: 15px;
+	font-style: normal;
+}
+
+.ss-product-box .ss-product-brand {
+	width: 150px;
+	height: 20px;
+	left: 250px;
+	position:relative;
+	bottom: 155px;
+}
+
+.ss-product-box .ss-product-price {
+	width: 150px;
+	height: 20px;
+	left: 250px;
+	position:relative;
+	bottom: 130px;
+}
+
+/* This is for the actual price of the product */
+.ss-product-box .ss-product-price h3 {
+	color: #32CD32;
+	font-size: 15px;
+	font-style: normal;
+}
+
+.ss-product-box .ss-product-desc {
+	/*border: 1px solid #C3C4C4;*/
+	height: 100px;
+	width: 635px;
+	position:relative;
+	bottom: 55px;
+	left: 1em;
+}
+
+.ss-view-per-page-box {
+	margin: 50px 0 0 225px;
+	position: relative;
+	z-index: 5;
+}
+
+.ss-products-box .back-to-top-box {
+	margin-left: 300px;
+	margin-bottom: 15px;
+}
+
+.ss-products-box .back-to-top-box h3 {
+	font-size: 15px;
+	font-style: normal;
+}
+
+.ss-categories-body {
+	border: 1px solid #C3C4C4;
+	margin: 30px 0 0 130px;
+	width: 947px;
+}
+
+.ss-categories-content {
+	margin: 30px 0 0 450px;
+}
+
+
+#footerWrapper {
+	background-color: white;
+	bottom: 0;
+	height: 20px;
+	left: 0;
+	position: fixed;
+	width: 100%;
+	z-index: 3;
+}
+
+#footerWrapper #f_footer {
+	border-top: 1px solid #CCC;
+	font-family: arial,helvetica,clean,sans-serif;
+	font-size: 10px;
+	margin-top: 0em;
+	padding-top: 0.5em;
+	text-align: center;
+}
+
+#f_footer p {
+	margin-top: -3px;
+	padding: 0;
+}

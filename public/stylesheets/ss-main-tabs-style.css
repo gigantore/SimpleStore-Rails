@@ -1,0 +1,56 @@
+.ss-tab-layout {
+	/*background: url(/images/ui-bg_flat_0_aaaaaa_40x100.png);*/
+	width:77.4%; /*77.4%*/
+	height:30px;
+    margin-left:130px; /*130px*/
+}
+
+.ss-tab-container {
+	position:static;
+	width:100%;
+	height:30px;
+	/*background: #dddddd;*/
+}
+
+.ss-tab-container ul {
+	width:100%;
+	list-style: none;
+	padding:1px 0 0px 0;
+	margin:0 0 0 2px;
+}
+
+.ss-tab-container ul li {
+	/*width:470px;*/
+	max-width: 100%;
+	display: inline-table;
+	border: solid;
+	border-width: 1px 1px 0 1px;
+	margin: -1px -1px -1px -1px;
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	text-align: center;
+	font-size: 25px;
+	background: url(/images/ui-bg_glass_75_dadada_1x400.png);
+}
+
+.ss-tab-container li a {
+	/*padding: 0 1em;*/
+	text-decoration: none;
+}
+
+.ss-tab-container .active-tab {
+	/*padding-bottom: 1px; 
+	background: white;*/
+	border: solid #AAA;
+	border-width: 1px 1px 0 1px;
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	background: white url(/images/ui-bg_glass_65_ffffff_1x400.png);
+	font-weight: normal;
+	color: #212121;
+
+	/*position: relative;
+	top: 1px;
+	width: 100%;
+	background: url(/images/ui-bg_glass_65_ffffff_1x400.png);*/
+}

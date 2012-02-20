@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SimpleStore</title>
+		<!-- <%= stylesheet_link_tag "ss-boxes.css" %> -->
+		<%= stylesheet_link_tag :all, :recursive => true %> <!-- <%= stylesheet_link_tag :all %> -->
+		<%= javascript_include_tag :defaults %>
+		<%= csrf_meta_tag %>
+		<!--
+			<%= javascript_include_tag 'jquery-1.6.2.min' %>
+		<%= javascript_include_tag 'jquery-ui-1.8.16.custom.min' %>
+		<%= javascript_include_tag 'jquery-mine' %>
+			<script>
+			$(function() {
+				$("#tabs").tabs();
+			});
+
+		</script>
+		<div class="ss-main-box">
+			<img src="smiley.gif" alt="M9 Logo Here" height="42" width="42" />
+				<div id="tabs">
+					<ul>
+						<li>
+							<a href="#tabs-1">Nunc tincidunt</a>
+						</li>
+						<li>
+							<a href="#tabs-2">Proin dolor</a>
+						</li>
+					</ul>
+					<div id="tabs-1"></div>
+					<div id="tabs-2"></div>
+				</div>
+		</div>-->
+		
+		<div class="ss-header-box">
+			<div class="ss-header-child-box">
+				<img class="ss-m9-image-box" src="smiley.gif" alt="M9 Logo Here" height="65" width="65" />
+				
+				<div class="ss-search-box-layout">
+					<form id="site-search" action="#" method="get"> 
+						<input id="site-search" type="text" value="Search by Keyword or Description" 
+							onfocus="if (this.value == 'Search by Keyword or Description') {this.value = '';}" 
+							onblur="if (this.value == '') {this.value = 'Search by Keyword or Description';}">
+						<!-- <input id="site-search" type="text" name="query" id="query" maxlength="90" value="Search by Keyword or Description"> -->
+						<input id="search-button" type="submit" value="Search">
+						
+						<!--
+						<% form_tag request.path, :method => 'get' do %>
+						  <% content_tag :label do %>
+						    Search term:
+						    <%= text_field_tag :search, params[:search] %>
+						  <% end %>
+						<% end %> -->
+					</form> 
+				</div>
+			</div>
+			<!--
+			<div class="ss-tab-layout">
+				<div class="ss-tab-container">
+						<ul>
+							<a href="http://localhost:3000/home/products">
+								<li class="<%= "active-tab" if params[:action] == "products" %>">
+									Products
+								</li>
+							</a>
+							<a href="http://localhost:3000/home/about">
+								<li class="<%= "active-tab" if params[:action] == "about" %>">
+									About
+								</li>
+							</a>
+						</ul>
+				</div>
+			</div> -->
+	
+
+			
+			
+		</div>
+	</head>
+	<body>
+		<script language="javascript">
+    window.tabs_callback = function(index,str) {
+     	//alert("tabs_callback is called!");
+     	window.location.href = "http://localhost:3000/home/" + str.toLowerCase();
+    }; 
+    </script>
+    	
+	  <%= create_main_tabs(0, ["Products", "About", "Test"], "window.tabs_callback") %>
+	<div class="ss-news-box-layout">
+				Some news can be put here or anything I don't know....or probably bread crumbs can be put here...hmm
+			</div>
+		<%= yield %>
+		
+
+	</body>
+	
+	<div id="footerWrapper">
+		<div id="f_footer">
+			<p>Copyright © 2012 TheKusumaS Inc. All rights reserved.</p>
+		</div>
+	</div>
+</html>

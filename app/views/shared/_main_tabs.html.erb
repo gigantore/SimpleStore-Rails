@@ -1,0 +1,32 @@
+<% counter = 0 %>
+<% length = tabNames.length %>
+<% redirect = "" %>
+<div class="ss-tab-layout">
+	<div class="ss-tab-container">
+		<ul>
+			<% tabNames.each_with_index do |name,index| %>
+				<% lowerName = name.to_s.downcase %>
+				 <a href="" onclick="return false;">
+					<li class="<%= "active-tab" if activeTab == index %>" style="width: <%= 100 / length %>%" 
+					    onclick="<%=callback%>(<%=index%>,'<%=name%>');">
+						<%= name.to_s %>
+					</li>
+				 </a>
+				<% counter = counter + 1 %>
+			<% end %>
+			
+			<!--
+				
+					
+			<a href="http://localhost:3000/home/products">
+			<li class="<%= "active-tab" if params[:action] == "products" %>">
+				Products
+			</li> </a>
+			<a href="http://localhost:3000/home/about">
+			<li class="<%= "active-tab" if params[:action] == "about" %>">
+				About
+			</li> </a> -->
+		</ul>
+	</div>
+</div>
+ 

@@ -1,0 +1,31 @@
+<!-- 
+product keys:
+price
+brand -> brand_id; name
+description
+category -> name; category_id
+name
+sku_id
+origin
+-->
+
+<div class="ss-product-box">
+	<img class="ss-product-image" src="smiley.gif" alt="Some Product Picture" />
+	<div class="ss-product-name">
+		<h2>Product Name:</h2>
+		<h3><%= product[:name] %></h3>
+	</div>
+	<div class="ss-product-brand">
+		<h2>Product Brand:</h2>
+		<h3><%= product[:brand][:name] %></h3>
+	</div>
+	<div class="ss-product-price">
+		<h2>Product Price:</h2>
+		<h3>$<%= product[:price] %></h3>
+	</div>
+	<div class="ss-product-desc">
+		<h2>Product Description:</h2>
+		<h3><%= product[:description] %></h3>
+		<h3>This product is from <%= product[:origin] %></h3>
+	</div>
+</div>
