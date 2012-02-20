@@ -6,36 +6,36 @@
   item_end = item_start + (items_per_page-1)
   item_end = total_items if item_end > total_items
 %>
-<div> 
+<div  style="<% if display_borders == true %>border-style:solid;border-width:2px;<% end %>" >
 
-<% if display_information == true %>
-Displaying items <%=item_start%> to <%=item_end%>
-<br /><br />
-<% end %>
-
-<% if page_num == 1 %>
-  Previous
-<% else %>
-  <a href='#' onclick='<%=js_callback%>(<%=page_num-1%>);return false;'>Previous</a>
-<% end%>
-
-
-&nbsp;&nbsp;&nbsp;
-<% for i in 1..total_pages do %>
-  <% if i == page_num %>
-    <%=i.to_s %> 
-  <% else %>
-    <a href='#' onclick='<%=js_callback%>(<%=i%>);return false;'><%= i.to_s %> </a>
-  <% end %>
-  &nbsp;&nbsp;
-<% end %>
-&nbsp;&nbsp;&nbsp;  
-
-<% if page_num == total_pages %>
-  Next
-<% else %>
-  <a href='#' onclick='<%=js_callback%>(<%=page_num+1%>);return false;'>Next</a>
-<% end%>
-
+	<div style="margin-left:auto;margin-right:auto;width:500px;">
+		Displaying items <%=item_start%> to <%=item_end%>
+		
+		&nbsp;&nbsp; | &nbsp;&nbsp; 
+		
+		<% if page_num == 1 %>
+		  Previous
+		<% else %>
+		  <a href='#' onclick='<%=js_callback%>(<%=page_num-1%>);return false;'>Previous</a>
+		<% end%>
+		
+		
+		&nbsp;&nbsp;&nbsp;
+		<select onchange='<%=js_callback%>(this.value);return false;'>
+			<% for i in 1..total_pages do %>
+				<option <%= "selected" if(i==page_num) %>><%=i.to_s%></option>
+			<% end %>
+		</select>
+		&nbsp;&nbsp;&nbsp;
+		
+		 
+		
+		<% if page_num == total_pages %>
+		  Next
+		<% else %>
+		  <a href='#' onclick='<%=js_callback%>(<%=page_num+1%>);return false;'>Next</a>
+		<% end%>
+		
+	</div> 
 </div>
  

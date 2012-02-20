@@ -8,4 +8,32 @@ class Product < ActiveRecord::Base
 	           :conditions => ['name like ?', "%#{search}%"],
 	           :order => 'name' 
 	end
+	
+	
+  def self.pull( page_num , count )
+    page_num = page_num.to_i
+    count = count.to_i
+  
+    output = []
+    products = self.limit("#{count*(page_num-1)},#{count}")
+    products.each do |p|
+      output.push self.construct_output( p )
+    end
+    return output
+  end
+  
+  private
+  def self.construct_output( product )
+     out = {
+      :product_id => product.product_id,
+      :name => product.name,
+      :description => product.description,
+      :price => product.price,
+      :brand => {
+        :id => product.brand.brand_id,
+        :name => product.brand.name
+      } 
+    }
+    return out 
+  end  
 end

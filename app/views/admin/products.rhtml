@@ -1,0 +1,29 @@
+<script type="text/javascript">
+window.paginatorCallback = function(pageNum){ 
+	window.location = "/admin/products?page_num=" + pageNum;
+};
+</script>
+
+<input type='button' value='Create New'/>
+<br /><br />
+<%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> 
+
+ 
+<br /><br />
+
+
+<table style='margin-left:auto;margin-right:auto;'>
+<% @products.each_with_index do |p,index| %> 
+	<%
+		# change the index
+		index += (@page_num - 1) * @items_per_page
+	%>
+	
+	<%= table_row_item_box(p , index) %>  
+<% end %>
+</table>
+
+<br /><br />
+ 
+<%= admin_paginator :page_num=>@page_num,:total_items => @total_items,   :js_callback => 'window.paginatorCallback'%> 
+

@@ -1,0 +1,27 @@
+body {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+ 
+tr.table_row_item_box  td{
+	vertical-align:top;
+	margin-bottom: 10px;
+} 
+tr.table_row_item_box .content {
+	font-size: .8em !important;
+	clear:both;
+	width:500px;
+	height:320px;
+	background-color: #F3E2A9; 
+	padding: 5px;
+}
+tr.table_row_item_box .content .left_bar {
+	clear:none;
+	float:left;
+	background:transparent;
+}
+tr.table_row_item_box .content .right_bar {
+	float:right;
+	background:transparent;
+} 

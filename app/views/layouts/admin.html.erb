@@ -2,44 +2,47 @@
 <html>
 	<head>
 		<title>SimpleStore</title>
-		<!-- <%= stylesheet_link_tag "ss-boxes.css" %> -->
-		<%= stylesheet_link_tag :all, :recursive => true %> <!-- <%= stylesheet_link_tag :all %> -->
-		<%= javascript_include_tag :defaults %>
+		<!--  -->
+		
+		<!--
+			<%= stylesheet_link_tag :all, :recursive => true %>   
+		<%= stylesheet_link_tag :all %>
+		<%= javascript_include_tag :all, :recursive => true %> 
+		--> 
+		
+		<%= stylesheet_link_tag "jquery-ui/jquery-ui-1.8.17.custom.css" %>
+		<%= stylesheet_link_tag "admin/ss-admin.css" %>
+		<script type="text/javascript" src="/javascripts/jquery/jquery-1.7.1.min.js"></script> 
+		<script type="text/javascript" src="/javascripts/jquery/jquery-ui-1.8.17.custom.min.js"></script>  
 		<%= csrf_meta_tag %>
 		
+		<script language="javascript"> 
+			$(document).ready(function(){
+				$( "#maintab" ).tabs();
+				
+				$("#maintab ul li a").click(function() { // bind click event to link
+					alert("Clicked!"); 
+				    return false;
+				});
+			});
+		</script>
 	</head>
-	<body>
-	
-	<script language="javascript">
-    window.tabs_callback = function(index , string){
-      str = string.toLowerCase();
-      window.location = "/admin/" + str;
-    }; 
-    </script>			 
-      <%
-      	action_name = controller.action_name
-      	if !action_name.match("prod").nil?
-      		tab_index = 0
-      	elsif !action_name.match("cat").nil?
-      		tab_index = 1
-      	elsif !action_name.match("brand").nil?
-      		tab_index = 2
-      	else
-      		tab_index = 3
-      	end
-      
-      %> 
-	  <%= create_main_tabs(tab_index, ["Products", "Categories", "Brands", "Settings"], "window.tabs_callback") %>
-	
-		<%= yield %>
+	<body>  
+		<%
+			tab_id_name = controller.action_name + "-tab-content"
+		%>
 		
-		
-
+		<div id="maintab">
+			<ul>
+				<li><a href="#products-tab-content">Products</a></li>
+				<li><a href="#settings-tab-content">Settings</a></li> 
+			</ul>
+			<div id="<%=tab_id_name%>">
+				<%= yield %>	
+			</div>
+		</div>
 	</body>
 	
 	<div id="footerWrapper">
-		<div id="f_footer">
-			<p>Copyright © 2012 TheKusumaS Inc. All rights reserved.</p>
-		</div>
 	</div>
 </html>

@@ -7,10 +7,21 @@ class HomeController < ApplicationController
   #	@param	page_num	Optional. Default 1 (1-based). The page number
   ##
   def products
-  	
   	items_per_page = params[:items_per_page] || 15
   	page_num = params[:page_num] || 1
   	 
+  
+=begin
+    ARDO PLEASE DEPRECATE YOUR STUFF BELOW AND REPLACE THEM WITH THIS:
+    
+    @categories = Category.limit(10) 
+    @products = Product.pull(page_num,items_per_page) 
+    @items_per_page = items_per_page
+    @page_num = page_num.to_i
+    @total_items = Product.count
+ 
+  
+=end  
   
 	  @brands = Brand.limit(10)
 	  @categories = Category.limit(10) 
@@ -18,6 +29,7 @@ class HomeController < ApplicationController
 	  @items_per_page = items_per_page
 	  @page_num = page_num
 	  @total_items = Sku.count
+	  
   end
   
   def brands

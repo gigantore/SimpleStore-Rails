@@ -1,3 +1,18 @@
+################################
+################################
+################################
+################################
+#
+# DEPRECATION NOTICE:  AS OF FEB 19 2012 SKU IS NOT USED ANYMORE, WE'RE GOING TO STICK WITH PRODUCTS
+#
+################################
+################################
+################################
+################################
+
+
+
+
 class Sku < ActiveRecord::Base
 	belongs_to :product, :foreign_key => :product_id, :primary_key => :product_id
 	

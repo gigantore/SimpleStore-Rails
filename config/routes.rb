@@ -1,26 +1,23 @@
 SimpleStore::Application.routes.draw do
+  
+  root :to => 'home#products'
+  #resources :home
+  #resources :admin
+#=begin
   get "home/index"
-
   get "home/products"
-
   get "home/about"
-  
   get "home/show_product"
-  
   get "home/brands"
-  
   get "home/categories"
   
+  match 'admin' => 'admin#index'
   get "admin/index"
   get "admin/products"
-  get "admin/categories"
-  get "admin/brands"
-  post "admin/brand_edit"
-  get "admin/brand_view"
-  post "admin/brand_del"
-  get "admin/brands_add"
-  get "admin/settings"
-
+  get "admin/settings" 
+#=end  
+   
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
