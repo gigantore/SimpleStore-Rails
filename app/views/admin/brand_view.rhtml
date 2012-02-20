@@ -1,7 +1,0 @@
-<br /><br />
-<%= form_tag("/admin/brand_edit", :method => "post") do %>
-  <%= label_tag(:brand_id, "Brand ID: #{@brand[:brand_id]}") %> <br />
-  <%= hidden_field_tag "brand[brand_id]",@brand[:brand_id] %> 
-  Brand Name : <%= text_field_tag("brand[name]" , @brand[:name]) %> <br />
-  <%= submit_tag("Edit") %>
-<% end %>
