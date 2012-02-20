@@ -29,9 +29,9 @@ class Product < ActiveRecord::Base
       :name => product.name,
       :description => product.description,
       :price => product.price,
-      :brand => {
-        :id => product.brand.brand_id,
-        :name => product.brand.name
+      :category => {
+        :id => product.category.category_id,
+        :name => product.category.name
       } 
     }
     return out 
