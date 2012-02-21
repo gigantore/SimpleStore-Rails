@@ -92,7 +92,7 @@ function renderCanvasesWithInitialImages(){
 		var dataUrl = $(canvasId).attr("dataurl");
 		if(dataUrl === ""){
 			// no image specified...
-			renderCanvasFromURL(canvasId,"/images/image-not-found.png"); 
+			renderCanvasFromURL(canvasId,window.globals.imageNotFoundPath); 
 		} else {
 			// render from that url
 			// DO SOMETHING HERE
@@ -102,24 +102,56 @@ function renderCanvasesWithInitialImages(){
 	}	
 }
 function linkCanvasesWithFileInputs(){ 
+	var _linkCanvasesWithFileInputsDo = function(canvasId,canvasRemoveBtnId,inputFileId){
+		$(canvasId).click(function(){ 
+			$(inputFileId).click();
+		});	
+		
+		$(inputFileId).change(function(event){
+			var file = event.target.files[0];
+			renderCanvasFromLocal(canvasId,file); 
+			$(canvasRemoveBtnId).show();// display the remove btn
+		});
+		$(canvasRemoveBtnId).click(function(){
+			// remove the image back to default
+			// hide self
+			
+			$(canvasRemoveBtnId).hide();
+		});		
+	};
+	
 	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
 		var index = i + window.globals.indexBase;
 		var canvasId = "#form-canvas-" + index;
 		var inputFileId = "#form-input-file-" + index;
 		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
 		_linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId);
+		 
 	}
 }
-function _linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId){ 
-	$(canvasId).click(function(){ 
-		$(inputFileId).click();
-	});	
-	$(inputFileId).change(function(event){
-		var file = event.target.files[0];
-		renderCanvasFromLocal(canvasId,file); 
-		$(canvasRemoveBtnId).show();// display the remove btn
-	});
-}
+function setupFormDropFiles(){
+	var _setupFormDropFilesHandleDo = function(formContentId){
+		console.log("formContent=");console.log($(formContentId));
+		$(formContentId).droppable({
+			drop: function( event, ui ) {
+				alert("dropped");
+				console.log(arguments);
+			}
+		});
+		/*
+		$(formContentId).drop(function(){
+			alert("dropped");
+			console.log(arguments);
+		});*/
+	};
+	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
+		var index = i + window.globals.indexBase;
+		var formContentId = "#form-content-" + index;
+		
+		_setupFormDropFilesHandleDo(formContentId);
+		
+	}	
+} 
 function setupFormChangesDetection(){ 
 	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
 		var index = i + window.globals.indexBase;
@@ -138,13 +170,15 @@ window.paginatorCallback = function(pageNum){
 window.globals = {
 	categories : <%=raw @categories.to_json%>,
 	itemsPerPage: <%=@items_per_page%>,
-	indexBase: <%=index_base%>
+	indexBase: <%=index_base%>,
+	imageNotFoundPath: "/images/image-not-found.png"
 };
  
 window.onActionViewReady = function(){
 	redoSelectCategoryOptions(); 
 	renderCanvasesWithInitialImages();
 	linkCanvasesWithFileInputs();
+	setupFormDropFiles();
 	setupFormChangesDetection();
 };
 
@@ -167,7 +201,7 @@ window.onActionViewReady = function(){
 	%> 
 	<!-- contains the content -->
 	<form id='form-<%=index%>'>
-	<tr>
+	<tr id='form-content-<%=index%>'>
 	  <td><%=index%>.</td>   
 	  <td class='table_row_item_box_content'> 
 			  	
