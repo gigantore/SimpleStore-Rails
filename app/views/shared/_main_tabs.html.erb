@@ -1,14 +1,25 @@
+<%= stylesheet_link_tag "jquery/jquery-ui/smoothness/jquery-ui-1.8.17.custom.css" %>
+<script type="text/javascript" src="/javascripts/jquery/jquery-1.7.1.min.js"></script> 
+<script type="text/javascript" src="/javascripts/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+					    
 <% counter = 0 %>
 <% length = tabNames.length %>
 <% redirect = "" %>
+
+<script>
+	$(function() {
+		$("#tabs").tabs();
+	});
+</script>
+
 <div class="ss-tab-layout">
 	<div class="ss-tab-container">
-		<ul>
+		<div id="tabs">
+			<ul>
 			<% tabNames.each_with_index do |name,index| %>
 				<% lowerName = name.to_s.downcase %>
-				 <a href="" onclick="return false;">
-					<li class="<%= "active-tab" if activeTab == index %>" style="width: <%= 100 / length %>%" 
-					    onclick="<%=callback%>(<%=index%>,'<%=name%>');">
+				 <a href="#tabs<%= counter + 1 %>">
+					<li>
 						<%= name.to_s %>
 					</li>
 				 </a>
@@ -26,7 +37,14 @@
 			<li class="<%= "active-tab" if params[:action] == "about" %>">
 				About
 			</li> </a> -->
-		</ul>
+			</ul>
+			
+			<% tabNames.each_with_index do |name,index| %>
+				<div id="tabs<%= index+1 %>">
+					<%= controller.action_name == name.to_s.downcase ? yield : "...Loading..."%>
+				</div>
+			<% end %>
+		</div>
 	</div>
 </div>
  

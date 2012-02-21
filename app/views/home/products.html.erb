@@ -43,7 +43,6 @@ function callme( pageNum ){
 
 <%= render :partial => 'categories_box', :locals => {:categories => @categories }%>
 
-	
 <div class="ss-products-body">
 	<div class="ss-products-main-box">
 		<%= paginate({:items_per_page => @items_per_page, :page_num => @page_num, :total_items => @total_items, :js_callback => "callme",:display_information => false}) %>
