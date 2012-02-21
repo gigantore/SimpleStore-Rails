@@ -9,27 +9,19 @@ class HomeController < ApplicationController
   def products
   	items_per_page = params[:items_per_page] || 15
   	page_num = params[:page_num] || 1
-  	 
   
-=begin
-    ARDO PLEASE DEPRECATE YOUR STUFF BELOW AND REPLACE THEM WITH THIS:
-    
-    @categories = Category.pull()
+	  # @brands = Brand.limit(10)
+	  # @categories = Category.limit(10) 
+	  # @skus = Sku.pull(page_num,items_per_page) 
+	  # @items_per_page = items_per_page
+	  # @page_num = page_num
+	  # @total_items = Sku.count
+	  @brands = Brand.limit(10)
+	  @categories = Category.pull()
     @products = Product.pull(page_num,items_per_page) 
     @items_per_page = items_per_page
     @page_num = page_num.to_i
-    @total_items = Product.count    
- 
-  
-=end  
-  
-	  @brands = Brand.limit(10)
-	  @categories = Category.limit(10) 
-	  @skus = Sku.pull(page_num,items_per_page) 
-	  @items_per_page = items_per_page
-	  @page_num = page_num
-	  @total_items = Sku.count
-	  
+    @total_items = Product.count 
   end
   
   def brands
@@ -44,12 +36,8 @@ class HomeController < ApplicationController
   # @param  sku_id
   ##
   def show_product
-=begin
-  ARDO, let's change sku_id to product_id
-  and change Sku.pull_one into Product.pull_one
-=end    
-  	sku_id = params[:sku_id]
-  	@sku = Sku.pull_one(sku_id)
+  	product_id = params[:product_id]
+  	@sku = Product.pull_one(product_id)
   end
   
   ##
