@@ -3,6 +3,13 @@ class Product < ActiveRecord::Base
 	belongs_to :brand, :primary_key => :brand_id , :foreign_key => :brand_id
 	belongs_to :category, :primary_key => :category_id , :foreign_key => :category_id
 	
+	
+	validates :name, :presence => true
+	
+	before_save do |record| 
+	  record.name = ActionController::Base.helpers.sanitize(record.name)
+	end
+	
 	def self.search
 	  paginate :per_page => 5, :page => page,
 	           :conditions => ['name like ?', "%#{search}%"],
@@ -22,17 +29,26 @@ class Product < ActiveRecord::Base
     return output
   end
   
-  private
+  def self.pull_one( product_id ) 
+    product = self.where( {:product_id => product_id } )
+    if product.count == 0
+      return nil
+    else
+      product = product[0]
+      return self.construct_output product
+    end
+  end  
+  
+  
   def self.construct_output( product )
+    cout = Category.construct_output( product.category )
      out = {
       :product_id => product.product_id,
       :name => product.name,
       :description => product.description,
       :price => product.price,
-      :category => {
-        :id => product.category.category_id,
-        :name => product.category.name
-      } 
+      :category => cout,
+      :is_enabled => product.is_enabled
     }
     return out 
   end  

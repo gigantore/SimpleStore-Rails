@@ -13,4 +13,5 @@ class Brand < ActiveRecord::Base
       send("#{name}=", value)
     end
   end
+  
 end

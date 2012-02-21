@@ -16,7 +16,4 @@ module AdminHelper
     })
   end
   
-  def table_row_item_box(product,index)
-    render :partial => 'shared/admin/table_row_item_box', :locals => {:product => product, :index => index}
-  end
 end

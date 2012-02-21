@@ -14,7 +14,9 @@ SimpleStore::Application.routes.draw do
   match 'admin' => 'admin#index'
   get "admin/index"
   get "admin/products"
+  get "admin/categories"
   get "admin/settings" 
+  post "admin/ax_category_new"
 #=end  
    
   

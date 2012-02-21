@@ -10,20 +10,52 @@
 		<%= javascript_include_tag :all, :recursive => true %> 
 		--> 
 		
-		<%= stylesheet_link_tag "jquery-ui/jquery-ui-1.8.17.custom.css" %>
+		<%= stylesheet_link_tag "jquery/jquery-ui/ui-lightness/jquery-ui-1.8.17.custom.css" %>
+		<%= stylesheet_link_tag "jquery/apprise/apprise.min.css" %>
+		<%= stylesheet_link_tag "jquery/fileupload/jquery.fileupload-ui.css" %> 
 		<%= stylesheet_link_tag "admin/ss-admin.css" %>
+		
 		<script type="text/javascript" src="/javascripts/jquery/jquery-1.7.1.min.js"></script> 
-		<script type="text/javascript" src="/javascripts/jquery/jquery-ui-1.8.17.custom.min.js"></script>  
+		<script type="text/javascript" src="/javascripts/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/apprise/apprise-1.5.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/fileupload/vendor/jquery.ui.widget.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/fileupload/jquery.iframe-transport.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/fileupload/jquery.fileupload.js"></script>
+		 
+		 
+		<script type="text/javascript" src="/javascripts/jquery/fileupload/load-image.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/fileupload/canvas-to-blob.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/fileupload/jquery.fileupload-ip.js"></script> 
+		 
 		<%= csrf_meta_tag %>
 		
-		<script language="javascript"> 
+		<script language="javascript">
+			function getTabPathFromLink(link){
+				return $(link).parent().attr("path");
+			} 
+			function getTabPathFromLI(li){
+				return $(li).attr("path");
+			}
+			
 			$(document).ready(function(){
-				$( "#maintab" ).tabs();
+				$( "#maintab" ).tabs({
+					selected: <%= ["products","categories","settings"].index controller.action_name %>
+				});
 				
-				$("#maintab ul li a").click(function() { // bind click event to link
-					alert("Clicked!"); 
+				
+				$("#maintab ul li").click(function(event) { // bind click event to LI 
+					window.location = getTabPathFromLI(this);
 				    return false;
 				});
+				$("#maintab ul li a").click(function(event) { // bind click event to link 
+					window.location = getTabPathFromLink(this);
+				    return false;
+				});				
+				
+				if(window.onActionViewReady){
+					// special for each action if they also want to get notification onready
+					window.onActionViewReady();
+				}
 			});
 		</script>
 	</head>
@@ -33,12 +65,20 @@
 		%>
 		
 		<div id="maintab">
-			<ul>
-				<li><a href="#products-tab-content">Products</a></li>
-				<li><a href="#settings-tab-content">Settings</a></li> 
+			<ul> 
+				<!-- path is custom -->
+				<li path="/admin/products"><a href="#link1" >Products</a></li>
+				<li path="/admin/categories"><a href="#link2" >Categories</a></li> 
+				<li path="/admin/settings"><a href="#link3" >Settings</a></li> 
 			</ul>
-			<div id="<%=tab_id_name%>">
-				<%= yield %>	
+			<div id="link1">
+				<%= controller.action_name == "products" ? yield : "...Loading..."%>
+			</div>		
+			<div id="link2">
+				<%= controller.action_name == "categories" ? yield : "...Loading..."%>
+			</div>	
+			<div id="link3">
+				<%= controller.action_name == "settings" ? yield : "...Loading..."%>
 			</div>
 		</div>
 	</body>

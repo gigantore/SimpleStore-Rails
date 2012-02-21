@@ -1,7 +1,153 @@
+<%
+	index_base = (@page_num - 1) * @items_per_page;
+	canvasWidth = 200;
+	canvasHeight = 200;
+%>
+
 <script type="text/javascript">
+function onSelectCategoryChanged(selectDiv){
+	var val = selectDiv.value; 
+	if(val == 'new'){
+		var newCat = apprise("Please input new category name",{input:true},function(newCat){
+			if(newCat){
+				console.log(newCat);
+				$.ajax({
+					url: '/admin/ax_category_new',
+					type: 'POST', dataType: 'json',
+					data: "name=" + newCat,
+					success:function(responseObj, textStatus, jqXHR){ 
+						if(responseObj.success !== 1){
+							//error
+							apprise("Error just happened = " + responseObj.msg);
+							return;
+						}
+						
+						var data = responseObj.data;
+						window.globals.categories = data.all_categories;
+						
+						redoSelectCategoryOptions();
+						
+						selectDiv.value = data.new_category.category_id;
+						$(selectDiv).attr("valueholder",selectDiv.value);
+					}
+				})
+			}
+		});  
+		setTimeout(function(){ 
+			$(selectDiv).val($(selectDiv).attr("valueholder"));
+		},500);
+	} else {
+		$(selectDiv).attr("valueholder",selectDiv.value);
+	}
+} 
+function redoSelectCategoryOptions(){
+	$('.category_select').empty();
+	
+	var allCategorySelectDivs =  $('.category_select');
+	var cats = window.globals.categories;
+	var len = cats.length;
+	var options = "<option value=''></option>";
+	for(var i = 0 ; i < len ; i++){
+		var cc = cats[i];
+		var cat_id = cc['category_id'];
+		var cat_name = cc['name'];
+		options += "<option value='"+cat_id+"'>"+cat_name+"</option>";
+		
+	}
+	options += "<option value='new'>-- Create New --</option>";
+	allCategorySelectDivs.append(options);
+	
+	// Now go to each one and select  
+	$.each(allCategorySelectDivs, function(index, div) {  
+  		$(div).val($(div).attr("valueholder"));
+	});
+}
+function renderCanvasFromURL(canvasId , dataURL){ 
+	var ctx = $(canvasId)[0].getContext('2d');
+	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
+	var img = new Image;
+	img.onload = function(){
+	  ctx.drawImage(img,0,0,<%=canvasWidth%>,<%=canvasHeight%> ); // Or at whatever offset you like
+	}; 
+	img.src = dataURL;	
+}
+function renderCanvasFromLocal(canvasId , file){
+	var ctx = $(canvasId)[0].getContext('2d');
+	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
+    var reader = new FileReader;
+    reader.onload = function(event) {
+        var img = new Image;
+        img.onload = function() {
+            ctx.drawImage(img, 0,0,<%=canvasWidth%>,<%=canvasHeight%> );
+        }
+        img.src = event.target.result;
+    }
+    reader.readAsDataURL(file);	
+}
+function renderCanvasesWithInitialImages(){ 
+	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
+		var index = i + window.globals.indexBase;
+		var canvasId = "#form-canvas-" + index;
+		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
+		var dataUrl = $(canvasId).attr("dataurl");
+		if(dataUrl === ""){
+			// no image specified...
+			renderCanvasFromURL(canvasId,"/images/image-not-found.png"); 
+		} else {
+			// render from that url
+			// DO SOMETHING HERE
+			
+			$(canvasRemoveBtnId).show();// display the remove btn
+		}
+	}	
+}
+function linkCanvasesWithFileInputs(){ 
+	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
+		var index = i + window.globals.indexBase;
+		var canvasId = "#form-canvas-" + index;
+		var inputFileId = "#form-input-file-" + index;
+		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
+		_linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId);
+	}
+}
+function _linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId){ 
+	$(canvasId).click(function(){ 
+		$(inputFileId).click();
+	});	
+	$(inputFileId).change(function(event){
+		var file = event.target.files[0];
+		renderCanvasFromLocal(canvasId,file); 
+		$(canvasRemoveBtnId).show();// display the remove btn
+	});
+}
+function setupFormChangesDetection(){ 
+	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
+		var index = i + window.globals.indexBase;
+		/*
+		var canvasId = "#form-canvas-" + index;
+		var inputFileId = "#form-input-file-" + index;
+		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
+		_linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId);
+		*/
+	}	
+}
+
 window.paginatorCallback = function(pageNum){ 
 	window.location = "/admin/products?page_num=" + pageNum;
+};  
+window.globals = {
+	categories : <%=raw @categories.to_json%>,
+	itemsPerPage: <%=@items_per_page%>,
+	indexBase: <%=index_base%>
 };
+ 
+window.onActionViewReady = function(){
+	redoSelectCategoryOptions(); 
+	renderCanvasesWithInitialImages();
+	linkCanvasesWithFileInputs();
+	setupFormChangesDetection();
+};
+
 </script>
 
 <input type='button' value='Create New'/>
@@ -12,14 +158,58 @@ window.paginatorCallback = function(pageNum){
 <br /><br />
 
 
-<table style='margin-left:auto;margin-right:auto;'>
-<% @products.each_with_index do |p,index| %> 
+<table class='table_row_item_box'  >
+<% @products.each_with_index do |product,index| %> 
 	<%
 		# change the index
-		index += (@page_num - 1) * @items_per_page
-	%>
-	
-	<%= table_row_item_box(p , index) %>  
+		index += index_base + 1#user view
+		
+	%> 
+	<!-- contains the content -->
+	<form id='form-<%=index%>'>
+	<tr>
+	  <td><%=index%>.</td>   
+	  <td class='table_row_item_box_content'> 
+			  	
+	      <div class="left_upper_section">
+	      	<div class="first_half">
+		        Name<br />
+		        <input type="text" value="<%=product[:name]%>" /><br /><br />
+		        
+		        Category<br />
+		        <select class='category_select' onchange="onSelectCategoryChanged(this);" valueholder="<%=product[:category][:category_id]%>">
+	       		</select>
+	         </div>
+	         <div class="second_half">
+		        Price<br />
+		        <input type="text" value="<%=product[:price]%>"/><br /><br /><br />
+		        <input type="checkbox"  <%=product[:is_enabled]?"checked":""%>  />Enabled	         	
+	         </div>
+	      </div>
+	      
+	      <div class="left_bottom_section">
+	      	Description<br />
+	        <textarea cols=50 rows=7><%=product[:description]%></textarea><br /><br />
+	      </div>
+	      
+	      
+	      <div class="right_section"> 
+	      	<canvas id='form-canvas-<%=index%>' width=<%=canvasWidth%> height=<%=canvasHeight%> style='cursor:pointer;' dataurl=''></canvas> 
+	   
+			<input id='form-canvas-remove-btn-<%=index%>' type='button'  value='Remove Picture' style='display:none;float:right;'/>
+	      </div>
+	        
+	      <input id='form-input-file-<%=index%>' type="file" style="top:-1000px;left:-1000px;position:absolute;">
+	  </td>
+	  <td><image src='/images/loading.gif'/></td>
+	</tr>
+	</form>
+	<!--spacer-->
+	<tr>
+	  <td>
+	  <br /><br />
+	  </td>
+	</tr>
 <% end %>
 </table>
 
