@@ -25,7 +25,10 @@ class FileTmpDir < Monitor
   end
   
   def read(file_tmp_id)
+    return nil if file_tmp_id.nil? || file_tmp_id == ""
+    
     path = create_file_path(file_tmp_id)
+    return nil if !FileTest.exists? path
     return IO.read(path)
   end
   

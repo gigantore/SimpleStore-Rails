@@ -4,19 +4,33 @@ class Product < ActiveRecord::Base
 	belongs_to :category, :primary_key => :category_id , :foreign_key => :category_id
 	set_primary_key :product_id 
 	validates :name, :presence => true
+	 
 	
-	before_save do |record| 
-	  record.name = ActionController::Base.helpers.sanitize(record.name)
+	before_destroy do |product| 
+	   product.delete_thumbnail()   
 	end
 	
 	THUMBNAIL_DIR_PATH =  "/images/thumbnails" 
 	
 	def save_thumbnail(file_content) 
+	  return false if file_content.nil?
+	  
 	  path = Product.get_thumbnail_path product_id
 	  
 	  fh = File.new(path,"wb")
 	  fh.write(file_content)
 	  fh.close
+	  return true
+	end
+	
+	def delete_thumbnail()
+    path = Product.get_thumbnail_path product_id
+    if FileTest.exist? path
+      File.delete path
+      return true
+    else
+      return false
+    end 
 	end
 	
 	

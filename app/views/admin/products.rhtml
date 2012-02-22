@@ -67,11 +67,9 @@ function renderCanvasFromURL(productId , dataURL){
 	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
 	var img = new Image;
 	img.onload = function(){
-		console.log("--draw now!");
 	  ctx.drawImage(img,0,0,<%=canvasWidth%>,<%=canvasHeight%> ); // Or at whatever offset you like
 	}; 
 	
-	console.log(productId + " --loading from " + dataURL);
 	img.src = dataURL;	
 }
 function renderCanvasFromLocalAndUpload(productId , file){
@@ -114,12 +112,9 @@ function renderCanvasesWithInitialImages(){
 		var dataUrl = $(getCanvasId(productId)).attr("dataurl"); 
 		if(dataUrl === ""){
 			// no image specified... 
-			renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
-		} else {
-			// render from that url
-			// DO SOMETHING HERE
-			//alert("implement me");
-		}
+			dataUrl = window.globals.imageNotFoundPath; 
+		}  
+		renderCanvasFromURL(productId,dataUrl); 
 	}); 
 }
 function linkCanvasesWithFileInputs(){  
@@ -133,9 +128,7 @@ function linkCanvasesWithFileInputs(){
 		});
 		$(getCanvasRemoveBtnId(productId)).click(function(){
 			// remove the image back to default 
-			renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
-			// hide self
-			$(this).hide();
+			renderCanvasFromURL(productId,window.globals.imageNotFoundPath);  
 		});		
 	}); 
 }
@@ -190,8 +183,20 @@ function setupFormChangesDetection(){
 		});
 		
 		$(getSaveBtnId(productId)).click(function(e){
-			uploadForm(productId);
+			e.preventDefault();
+			e.stopPropagation();
+			uploadProduct(productId);
+			
 		});
+		$(getDeleteBtnId(productId)).click(function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			apprise("Once you delete it can't be brought back",{verify:true},function(r){
+				if(r){ deleteProduct(productId); }
+			});
+
+			
+		});		
 	});
 }
 
@@ -202,10 +207,10 @@ function displayFormChangedState(productId){
 function displayFormUnchangedState(productId){
 	$(getSaveBtnId(productId)).hide();
 	$(getFormContentId(productId)).removeClass("modified");
-	$(getCanvasRemoveBtnId(productId)).hide();
+	
 }
 
-function uploadForm(productId){ 
+function uploadProduct(productId){ 
 	var serializedData = $(getFormId(productId)).serialize()
 	if(serializedData.indexOf("file_tmp_id=-1")){
 		// TODO: block here and wait until this done before proceeding
@@ -215,30 +220,74 @@ function uploadForm(productId){
 		url: '/admin/ax_product_submit',
 		type: 'POST',
 		data: serializedData,
-		success: function(responseText){
-			var responseObject = JSON.parse(responseText);
+		success: function(responseObject){ 
 			if(responseObject.success!=1){
 				apprise("Failed to submit changes = "+responseObject.msg);
 				return;
 			}
 			
+			$(getInputFileTmpHolderId(productId)).val("");  // empty it out
 			displayFormUnchangedState(productId);
+			convertProductId( productId , responseObject.data.product.product_id , responseObject.data.product );
+			
+		}
+	});
+}
+function deleteProduct(productId){
+	
+	$.ajax({
+		url: '/admin/ax_product_delete',
+		type: 'POST',
+		data: {
+			product_id: productId
+		},
+		success: function(responseObject){ 
+			if(responseObject.success!=1){
+				apprise("Failed to delete = "+responseObject.msg);
+				return;
+			}
+			
+			delete window.globals.productsById[productId];
+			$(getFormContentId(productId)).fadeOut(1000,function(){
+				$(this).remove();
+				//$(getFormId(productId)).remove(); // finally remove the form
+			});
+			
 		}
 	});
 }
 
+function convertProductId(oldProductId , newProductId , newProductData){
+	delete window.globals.productsById[oldProductId];
+	window.globals.productsById[newProductId] = newProductData;
+	
+	var oldIdSuffix = "-" + oldProductId;
+	var newIdSuffix = "-" + newProductId;
+	$('[id$="'+oldIdSuffix+'"]').each(function(index,div){
+		var oldId = $(div).attr("id");
+		var newId = oldId.replace(oldIdSuffix,newIdSuffix);
+		$(div).attr("id",newId);
+	});	
+}
+
 //////////////////////////// VARIABLES, IDS, GLOBALS
 function forEachProductId(functionToCall){
-	var l =  window.globals.products.length;
-	for(var i = 0 ; i < l ; i++){
-		var product = window.globals.products[i];
-		functionToCall(product.product_id);
-	}	
+	for(var possibleProductId in window.globals.productsById){
+		if(isNaN(possibleProductId)===false){
+			//is number
+			functionToCall(possibleProductId)
+		}
+	}
 }
+
+// You don't really want to use this unless you're submitting since the child of
+//  this form is unpredictable in some browsers due to their auto-correct mechanism
 function getFormId(productId , prependHashDefaultTrue){
 	var id = "form-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
 }
+
+// This is the "tr" , pretty much the whole row.
 function getFormContentId(productId , prependHashDefaultTrue){
 	var id = "form-content-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
@@ -314,15 +363,15 @@ window.paginatorCallback = function(pageNum){
 function initGlobals(){
 	window.globals = {
 		categories : <%=raw @categories.to_json%>,
-		itemsPerPage: <%=@items_per_page%>,
-		products: <%=raw @products.to_json%>,
+		itemsPerPage: <%=@items_per_page%>, 
 		imageNotFoundPath: "/images/admin/image-not-found.png"
 	};
 	// assign productsById
 	var productsById = {};
-	var ll = window.globals.products.length;
+	var products = <%=raw @products.to_json%>;
+	var ll = products.length;
 	for(var i = 0 ;i  < ll ; i++){
-		var product = window.globals.products[i];
+		var product =  products[i];
 		productsById[product.product_id] = product;
 	}
 	window.globals.productsById = productsById;	
@@ -366,6 +415,9 @@ window.onActionViewReady = function(){
 	  	<div class='table_row_item_box_content <%=content_css%>' style='margin:10px'> 
 		  <input id='form-input-file-tmp-id-<%=pid%>' type="hidden" name="file_tmp_id" value=""/>
 		  <input type='hidden' name="product_id" value=<%=pid%> />
+		  
+		  <!-- this won't be included in serialize() automatically -->
+		  <input id='input-file-btn-<%=pid%>' type="file" style="top:-1000px;left:-1000px;position:absolute;">
 		
 	      <div class="left_upper_section">
 	      	<div class="first_half">
@@ -392,7 +444,7 @@ window.onActionViewReady = function(){
 	      <div class="right_section"> 
 	      	<canvas id='form-canvas-<%=pid%>' width=<%=canvasWidth%> height=<%=canvasHeight%> style='cursor:pointer;' dataurl='<%=thumbnail_url%>'></canvas> 
 	   
-			<input id='form-canvas-remove-btn-<%=pid%>' type='button'  value='Remove Picture' style='display:none;float:right;'/>
+			<input id='form-canvas-remove-btn-<%=pid%>' type='button'  value='Remove Picture' style='float:right;'/>
 	      </div>
 	        
 	    </div>
@@ -407,18 +459,13 @@ window.onActionViewReady = function(){
 	  	-->
 	  </td>
 	  </form>
-	</tr>
-	
-	
-	<input id='input-file-btn-<%=pid%>' type="file" style="top:-1000px;left:-1000px;position:absolute;">
-	
-	
-	<!--spacer-->
-	<tr>
-	  <td>
 	  
-	  </td>
 	</tr>
+	
+	
+	
+	
+
 <% end %>
 </table>
 

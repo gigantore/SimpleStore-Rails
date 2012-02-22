@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120106052651) do
+ActiveRecord::Schema.define(:version => 20120222203251) do
 
   create_table "brands", :primary_key => "brand_id", :force => true do |t|
     t.string   "name",       :null => false
@@ -35,15 +35,5 @@ ActiveRecord::Schema.define(:version => 20120106052651) do
 
   add_index "products", ["brand_id"], :name => "brand_id"
   add_index "products", ["category_id"], :name => "category_id"
-
-  create_table "skus", :id => false, :force => true do |t|
-    t.integer "product_id",  :default => 0,    :null => false
-    t.string  "sku_part",                      :null => false
-    t.string  "short_name"
-    t.string  "description",                   :null => false
-    t.integer "amount",      :default => 0
-    t.float   "price"
-    t.boolean "is_enabled",  :default => true
-  end
 
 end

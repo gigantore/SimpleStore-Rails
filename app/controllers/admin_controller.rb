@@ -76,6 +76,8 @@ class AdminController < ApplicationController
   # @param  category_id
   ##
   def ax_product_submit
+    file_tmp_dir = FileTmpDir.new
+    
      
     product = nil
     product = Product.find(:first, :conditions => {:product_id => params[:product_id]}) if params[:product_id] != ""
@@ -91,16 +93,18 @@ class AdminController < ApplicationController
     product.save!
     
     file_tmp_id = params[:file_tmp_id]
-    if !file_tmp_id.nil? && file_tmp_id != ""
-      file_tmp_dir = FileTmpDir.new 
-      product.save_thumbnail(file_tmp_dir.read(file_tmp_id))
-      file_tmp_dir.delete(file_tmp_id)
-    end
+    file_tmp_dir.delete(file_tmp_id) if product.save_thumbnail(file_tmp_dir.read(file_tmp_id))
+    
     
     ajax_return(true,{
-      :product_id => product.product_id 
+      :product => Product.construct_output(product)
     })
     
+  end
+  
+  def ax_product_delete() 
+    Product.destroy(params[:product_id]) 
+    ajax_return(true)
   end
   
   ##
