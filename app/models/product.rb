@@ -48,7 +48,8 @@ class Product < ActiveRecord::Base
       :description => product.description,
       :price => product.price,
       :category => cout,
-      :is_enabled => product.is_enabled
+      :is_enabled => product.is_enabled,
+      :thumbnail_url => ""
     }
     return out 
   end  

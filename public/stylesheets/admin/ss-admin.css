@@ -1,5 +1,5 @@
 body {
-	width: 800px;
+	width: 850px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -8,21 +8,29 @@ body {
 .table_row_item_box {
 	margin-left:auto;
 	margin-right:auto;
+	border-spacing: 0px;
+
 }
 .table_row_item_box tr {
 	margin-left:auto;
 	margin-right:auto;	
 }
-.table_row_item_box tr td {
-	vertical-align: top;
+.table_row_item_box .modified{
+	background-color: yellow;
 }
+
 .table_row_item_box_content {
 	font-size: .8em !important;
 	clear:both;
 	width:560px;
-	height:280px;
+	height:280px; 
+	padding: 20px;
+}
+.table_row_item_box_content.even {
 	background-color: #F3E2A9; 
-	padding: 5px;
+}
+.table_row_item_box_content.odd {
+	background-color: #CCAAAA; 
 }
 .table_row_item_box_content .left_upper_section {
 	clear:none;
@@ -52,5 +60,8 @@ body {
 	margin-top:0px;
 	margin-right:0px;
 }
-
+.table_row_item_box .buttons_section{
+	vertical-align:middle;
+	padding-top:10px;
+}
 

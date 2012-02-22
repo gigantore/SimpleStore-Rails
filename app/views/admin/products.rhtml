@@ -1,5 +1,5 @@
 <%
-	index_base = (@page_num - 1) * @items_per_page;
+	#index_base = (@page_num - 1) * @items_per_page;
 	canvasWidth = 200;
 	canvasHeight = 200;
 %>
@@ -32,10 +32,9 @@ function onSelectCategoryChanged(selectDiv){
 					}
 				})
 			}
-		});  
-		setTimeout(function(){ 
-			$(selectDiv).val($(selectDiv).attr("valueholder"));
-		},500);
+		});   
+		$(selectDiv).val($(selectDiv).attr("valueholder"));
+		 
 	} else {
 		$(selectDiv).attr("valueholder",selectDiv.value);
 	}
@@ -62,7 +61,8 @@ function redoSelectCategoryOptions(){
   		$(div).val($(div).attr("valueholder"));
 	});
 }
-function renderCanvasFromURL(canvasId , dataURL){ 
+function renderCanvasFromURL(productId , dataURL){ 
+	var canvasId = getCanvasId(productId);
 	var ctx = $(canvasId)[0].getContext('2d');
 	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
 	var img = new Image;
@@ -71,11 +71,15 @@ function renderCanvasFromURL(canvasId , dataURL){
 	}; 
 	img.src = dataURL;	
 }
-function renderCanvasFromLocal(canvasId , file){
+function renderCanvasFromLocalAndUpload(productId , file){
+	var canvasId = getCanvasId(productId);
 	var ctx = $(canvasId)[0].getContext('2d');
 	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
+	
+	// render to canvas
     var reader = new FileReader;
     reader.onload = function(event) {
+    	// render to canvas
         var img = new Image;
         img.onload = function() {
             ctx.drawImage(img, 0,0,<%=canvasWidth%>,<%=canvasHeight%> );
@@ -83,103 +87,253 @@ function renderCanvasFromLocal(canvasId , file){
         img.src = event.target.result;
     }
     reader.readAsDataURL(file);	
+    
+    
+    // upload now
+    $(getInputFileTmpHolderId(productId)).val(-1);  // trigger that currently it's in progress
+	var fileUploader = new FileUploadRequest(file);
+	fileUploader.send(function(responseObject){
+		if(responseObject.success !== 1){
+			alert("Something wrong with the upload="+responseObject.msg);
+			return;
+		}
+		
+		var data = responseObject.data;
+		var fileTmpId = data.file_tmp_id;
+		
+		$(getInputFileTmpHolderId(productId)).val(fileTmpId);
+	});
+	
 }
 function renderCanvasesWithInitialImages(){ 
-	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
-		var index = i + window.globals.indexBase;
-		var canvasId = "#form-canvas-" + index;
-		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
-		var dataUrl = $(canvasId).attr("dataurl");
+	
+	forEachProductId(function(productId){
+		var dataUrl = $(getCanvasId(productId)).attr("dataurl"); 
 		if(dataUrl === ""){
-			// no image specified...
-			renderCanvasFromURL(canvasId,window.globals.imageNotFoundPath); 
+			// no image specified... 
+			renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
 		} else {
 			// render from that url
 			// DO SOMETHING HERE
-			
-			$(canvasRemoveBtnId).show();// display the remove btn
+			//alert("implement me");
 		}
-	}	
+	}); 
 }
-function linkCanvasesWithFileInputs(){ 
-	var _linkCanvasesWithFileInputsDo = function(canvasId,canvasRemoveBtnId,inputFileId){
-		$(canvasId).click(function(){ 
-			$(inputFileId).click();
-		});	
-		
-		$(inputFileId).change(function(event){
+function linkCanvasesWithFileInputs(){  
+	forEachProductId(function(productId){
+		$(getCanvasId(productId)).click(function(){ 
+			$(getFileInputBtnId(productId)).click();
+		});	 
+		$(getFileInputBtnId(productId)).change(function(event){
 			var file = event.target.files[0];
-			renderCanvasFromLocal(canvasId,file); 
-			$(canvasRemoveBtnId).show();// display the remove btn
+			processFilePreview(productId,file);
 		});
-		$(canvasRemoveBtnId).click(function(){
-			// remove the image back to default
+		$(getCanvasRemoveBtnId(productId)).click(function(){
+			// remove the image back to default 
+			renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
 			// hide self
-			
-			$(canvasRemoveBtnId).hide();
+			$(this).hide();
 		});		
-	};
-	
-	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
-		var index = i + window.globals.indexBase;
-		var canvasId = "#form-canvas-" + index;
-		var inputFileId = "#form-input-file-" + index;
-		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
-		_linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId);
-		 
-	}
+	}); 
+}
+function processFilePreview(productId,file){
+	renderCanvasFromLocalAndUpload(productId,file); 
+	$(getCanvasRemoveBtnId(productId)).show();// display the remove btn
+	displayFormChangedState(productId); 
 }
 function setupFormDropFiles(){
-	var _setupFormDropFilesHandleDo = function(formContentId){
-		console.log("formContent=");console.log($(formContentId));
-		$(formContentId).droppable({
-			drop: function( event, ui ) {
-				alert("dropped");
-				console.log(arguments);
-			}
-		});
-		/*
-		$(formContentId).drop(function(){
-			alert("dropped");
-			console.log(arguments);
-		});*/
+	var _stopPropagation = function(e){
+		e.stopPropagation();
+		e.preventDefault();
+	}; 
+	var _setupFormDropFilesDo=function(index){ 
+		var dropbox = document.getElementById(getFormContentId(index,false));  
+		dropbox.addEventListener("dragenter", _stopPropagation, false);  
+		dropbox.addEventListener("dragover", _stopPropagation, false);  
+		dropbox.addEventListener("drop", function(e){ 
+			_stopPropagation(e);
+			var dt = e.dataTransfer;  
+  			var file = dt.files[0];
+			processFilePreview(index , file); 
+		}, false); 
 	};
-	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
-		var index = i + window.globals.indexBase;
-		var formContentId = "#form-content-" + index;
-		
-		_setupFormDropFilesHandleDo(formContentId);
-		
-	}	
+	
+	forEachProductId(_setupFormDropFilesDo); 
 } 
-function setupFormChangesDetection(){ 
-	for(var i = 1 ; i <= window.globals.itemsPerPage ; i++){
-		var index = i + window.globals.indexBase;
-		/*
-		var canvasId = "#form-canvas-" + index;
-		var inputFileId = "#form-input-file-" + index;
-		var canvasRemoveBtnId = "#form-canvas-remove-btn-" + index;
-		_linkCanvasesWithFileInputsDo(canvasId,canvasRemoveBtnId,inputFileId);
-		*/
+
+function setupFormChangesDetection(){  
+
+	forEachProductId(function(productId){  
+		var product = window.globals.productsById[productId];
+		
+		$(getInputNameId(productId)).keyup(function(e){
+			if($(this).val() != product.name) displayFormChangedState(productId); 
+		}); 
+		
+		$(getInputDescriptionId(productId)).keyup(function(e){
+			if($(this).val() != product.description) displayFormChangedState(productId);
+		});
+		
+		$(getInputPriceId(productId)).keyup(function(e){
+			if($(this).val() != product.price) displayFormChangedState(productId);
+		});
+		
+		$(getInputCategoryId(productId))[0].addEventListener("change",function(e){
+			if($(this).val() != product.category.category_id) displayFormChangedState(productId);
+		});
+		
+		$(getInputIsEnabledId(productId))[0].addEventListener("change",function(e){
+			if( $(this).is(':checked') != product.is_enabled) displayFormChangedState(productId);
+		});
+		
+		$(getSaveBtnId(productId)).click(function(e){
+			uploadForm(productId);
+		});
+	});
+}
+
+function displayFormChangedState(productId){
+	$(getSaveBtnId(productId)).show();
+	$(getFormContentId(productId)).addClass("modified");
+}
+function displayFormUnchangedState(productId){
+	$(getSaveBtnId(productId)).hide();
+	$(getFormContentId(productId)).removeClass("modified");
+	$(getCanvasRemoveBtnId(productId)).hide();
+}
+
+function uploadForm(productId){ 
+	var serializedData = $(getFormId(productId)).serialize()
+	if(serializedData.indexOf("file_tmp_id=-1")){
+		// TODO: block here and wait until this done before proceeding
+	}
+	
+	$.ajax({
+		url: '/admin/ax_product_submit',
+		method: 'POST',
+		data: serializedData,
+		success: function(responseText){
+			var responseObject = JSON.parse(responseText);
+			if(responseObject.success!=1){
+				apprise("Failed to submit changes = "+responseObject.msg);
+				return;
+			}
+			
+			displayFormUnchangedState(productId);
+		}
+	});
+}
+
+//////////////////////////// VARIABLES, IDS, GLOBALS
+function forEachProductId(functionToCall){
+	var l =  window.globals.products.length;
+	for(var i = 0 ; i < l ; i++){
+		var product = window.globals.products[i];
+		functionToCall(product.product_id);
 	}	
 }
+function getFormId(productId , prependHashDefaultTrue){
+	var id = "form-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getFormContentId(productId , prependHashDefaultTrue){
+	var id = "form-content-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getCanvasId(productId , prependHashDefaultTrue){
+	var id = "form-canvas-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getCanvasRemoveBtnId(productId , prependHashDefaultTrue){
+	var id = "form-canvas-remove-btn-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+} 
+function getSaveBtnId(productId, prependHashDefaultTrue){
+	var id = "save-btn-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);	
+}
+function getDeleteBtnId(productId, prependHashDefaultTrue){
+	var id = "delete-btn-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);	
+}
+function getFileInputBtnId(productId , prependHashDefaultTrue){
+	var id = "input-file-btn-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+
+function getInputNameId(productId , prependHashDefaultTrue){
+	var id = "form-input-name-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getInputDescriptionId(productId , prependHashDefaultTrue){
+	var id = "form-input-description-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getInputPriceId(productId , prependHashDefaultTrue){
+	var id = "form-input-price-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getInputCategoryId(productId , prependHashDefaultTrue){
+	var id = "form-input-category-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getInputIsEnabledId(productId , prependHashDefaultTrue){
+	var id = "form-input-is-enabled-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function getInputFileTmpHolderId(productId , prependHashDefaultTrue){
+	var id = "form-input-file-tmp-id-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+function areFormValuesChanged(productId){
+	var product = window.globals.productsById[productId]; 
+	if($(getInputNameId(productId)).val() != product.name) return true;
+	//console.log("getInputNameId OK");
+	if($(getInputDescriptionId(productId)).val() != product.description) return true;
+	//console.log("getInputDescriptionId OK");	
+	if($(getInputPriceId(productId)).val() != product.price) return true;
+	//console.log("getInputPriceId OK");	
+	if($(getInputCategoryId(productId)).val() != product.category.category_id) return true;
+	//console.log("getInputCategoryId OK");	
+	if(($(getInputIsEnabledId(productId)).attr("checked")=="checked") != product.is_enabled) return true;
+	//console.log("getInputIsEnabledId OK");	
+	if($(getInputFileTmpHolderId(productId)).val() !== "") return true;
+	//console.log("getInputFileTmpHolderId OK");	
+	return false;
+} 
+
+
 
 window.paginatorCallback = function(pageNum){ 
 	window.location = "/admin/products?page_num=" + pageNum;
 };  
-window.globals = {
-	categories : <%=raw @categories.to_json%>,
-	itemsPerPage: <%=@items_per_page%>,
-	indexBase: <%=index_base%>,
-	imageNotFoundPath: "/images/image-not-found.png"
-};
+
+function initGlobals(){
+	window.globals = {
+		categories : <%=raw @categories.to_json%>,
+		itemsPerPage: <%=@items_per_page%>,
+		products: <%=raw @products.to_json%>,
+		imageNotFoundPath: "/images/image-not-found.png"
+	};
+	// assign productsById
+	var productsById = {};
+	var ll = window.globals.products.length;
+	for(var i = 0 ;i  < ll ; i++){
+		var product = window.globals.products[i];
+		productsById[product.product_id] = product;
+	}
+	window.globals.productsById = productsById;	
+}
+
  
-window.onActionViewReady = function(){
+window.onActionViewReady = function(){ 
+	initGlobals(); 
 	redoSelectCategoryOptions(); 
 	renderCanvasesWithInitialImages();
 	linkCanvasesWithFileInputs();
 	setupFormDropFiles();
 	setupFormChangesDetection();
+	 
 };
 
 </script>
@@ -195,53 +349,71 @@ window.onActionViewReady = function(){
 <table class='table_row_item_box'  >
 <% @products.each_with_index do |product,index| %> 
 	<%
-		# change the index
-		index += index_base + 1#user view
+		pid = product[:product_id]
+		thumbnail_url = product[:thumbnail_url]
+		
+		content_css = (index % 2 == 0?"even":"odd")
 		
 	%> 
 	<!-- contains the content -->
-	<form id='form-<%=index%>'>
-	<tr id='form-content-<%=index%>'>
-	  <td><%=index%>.</td>   
-	  <td class='table_row_item_box_content'> 
-			  	
+	
+	<tr id='form-content-<%=pid%>'>
+	  <form id='form-<%=pid%>'>
+	  <td> 
+	  	<div class='table_row_item_box_content <%=content_css%>' style='margin:10px'> 
+		  <input id='form-input-file-tmp-id-<%=pid%>' type="hidden" name="file_tmp_id" value=""/>
+		  <input type='hidden' name="product_id" value=<%=pid%> />
+		
 	      <div class="left_upper_section">
 	      	<div class="first_half">
 		        Name<br />
-		        <input type="text" value="<%=product[:name]%>" /><br /><br />
+		        <input id="form-input-name-<%=pid%>" type="text" name="name" value="<%=product[:name]%>" /><br /><br />
 		        
 		        Category<br />
-		        <select class='category_select' onchange="onSelectCategoryChanged(this);" valueholder="<%=product[:category][:category_id]%>">
+		        <select id="form-input-category-<%=pid%>" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="<%=product[:category][:category_id]%>">
 	       		</select>
 	         </div>
 	         <div class="second_half">
 		        Price<br />
-		        <input type="text" value="<%=product[:price]%>"/><br /><br /><br />
-		        <input type="checkbox"  <%=product[:is_enabled]?"checked":""%>  />Enabled	         	
+		        <input id="form-input-price-<%=pid%>" type="text" name="price" value="<%=product[:price]%>"/><br /><br /><br />
+		        <input id="form-input-is-enabled-<%=pid%>" type="checkbox" value=true name="is_enabled" <%=product[:is_enabled]?"checked":""%>  />Enabled	         	
 	         </div>
 	      </div>
 	      
 	      <div class="left_bottom_section">
 	      	Description<br />
-	        <textarea cols=50 rows=7><%=product[:description]%></textarea><br /><br />
+	        <textarea id="form-input-description-<%=pid%>" name="description" cols=50 rows=7><%=product[:description]%></textarea><br /><br />
 	      </div>
 	      
 	      
 	      <div class="right_section"> 
-	      	<canvas id='form-canvas-<%=index%>' width=<%=canvasWidth%> height=<%=canvasHeight%> style='cursor:pointer;' dataurl=''></canvas> 
+	      	<canvas id='form-canvas-<%=pid%>' width=<%=canvasWidth%> height=<%=canvasHeight%> style='cursor:pointer;' dataurl='<%=thumbnail_url%>'></canvas> 
 	   
-			<input id='form-canvas-remove-btn-<%=index%>' type='button'  value='Remove Picture' style='display:none;float:right;'/>
+			<input id='form-canvas-remove-btn-<%=pid%>' type='button'  value='Remove Picture' style='display:none;float:right;'/>
 	      </div>
 	        
-	      <input id='form-input-file-<%=index%>' type="file" style="top:-1000px;left:-1000px;position:absolute;">
+	    </div>
 	  </td>
-	  <td><image src='/images/loading.gif'/></td>
+	  <td class="buttons_section">
+	  	<div class="buttonwrapper" >
+	  		<a id="save-btn-<%=pid%>" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
+	  		<a id="delete-btn-<%=pid%>" class="ovalbutton red" href="#" style="display:block"><span><b>Delete</b></span></a><br /><br /> 
+	  	</div>
+	  	<!--
+	  	<image src='/images/loading.gif'/>
+	  	-->
+	  </td>
+	  </form>
 	</tr>
-	</form>
+	
+	
+	<input id='input-file-btn-<%=pid%>' type="file" style="top:-1000px;left:-1000px;position:absolute;">
+	
+	
 	<!--spacer-->
 	<tr>
 	  <td>
-	  <br /><br />
+	  
 	  </td>
 	</tr>
 <% end %>
