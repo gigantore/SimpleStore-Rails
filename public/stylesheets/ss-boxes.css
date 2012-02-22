@@ -42,7 +42,6 @@
 
 .ss-products-body {
 	width:100%;
-	margin-bottom: -600px;
 }
 
 .ss-products-side-box {
@@ -106,15 +105,15 @@
 }
 
 .ss-products-main-box {
-	margin-left:200px;
+	margin-left:190px;
 	top: 100px;
 	clear: none;
 	width: 725px;
 }
 
-.ss-products-main-box .ss-products-box {
+/*.ss-products-main-box .ss-products-box {
 	margin: 1em 1em 1em 1em;
-}
+}*/
 
 .ss-product-box {
 	margin: 1em 1em 1em 1em;
@@ -123,18 +122,20 @@
 }
 
 .ss-product-box .ss-product-image {
+	clear:none;
 	border: 1px solid #C3C4C4;
 	height:175px;
 	width:225px;
 	margin: 1em 1em 0em 1em;
+	float:left;
 }
 
 .ss-product-box .ss-product-name {
+	clear:none;
 	width: 150px;
 	height: 20px;
-	left: 250px;
-	bottom: 182px;
-	position:relative;
+	margin-left: 250px;
+	margin-top:10px;
 }
 
 /* This is for "Product Name:" "Product Price:" "Product Description:" "Product Brand:" */
@@ -154,13 +155,13 @@
 	height: 20px;
 	visibility: hidden;
 	margin-left: 250px;
-	margin-bottom: 155px;
 }
 
 .ss-product-box .ss-product-price {
 	width: 150px;
 	height: 20px;
 	margin-left: 250px;
+	margin-top: 10px;
 }
 
 /* This is for the actual price of the product */
@@ -203,8 +204,9 @@
 }
 
 .before-footer-padding {
+	clear:none;
 	width:100px;
-	height: 100px;
+	height:50px;
 }
 
 #footerWrapper {
