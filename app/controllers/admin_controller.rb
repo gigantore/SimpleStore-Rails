@@ -2,6 +2,7 @@ require "base64"
 require "file_tmp_dir"
 class AdminController < ApplicationController
   layout "admin"
+   
   
   def index 
      redirect_to :action=>products
@@ -57,8 +58,8 @@ class AdminController < ApplicationController
     file_base64 = request.body.read
     file_content = Base64.decode64(file_base64)
     
-    fileTmpDir = FileTmpDir.new
-    file_tmp_id = fileTmpDir.write(file_content)
+    file_tmp_dir = FileTmpDir.new
+    file_tmp_id = file_tmp_dir.write(file_content)
     
     ajax_return(true,{:file_tmp_id => file_tmp_id})
   end
@@ -75,16 +76,26 @@ class AdminController < ApplicationController
   # @param  category_id
   ##
   def ax_product_submit
-    
-    
-    product = Product.new
-    product.product_id = params[:product_id] if params[:product_id] != ""
+     
+    product = nil
+    product = Product.find(:first, :conditions => {:product_id => params[:product_id]}) if params[:product_id] != ""
+    if product.nil?
+      product = Product.new
+    end
+     
     product.name = params[:name]
     product.description = params[:description]
     product.is_enabled = params[:is_enabled]
     product.price = params[:price]
     product.category_id = params[:category_id]
     product.save!
+    
+    file_tmp_id = params[:file_tmp_id]
+    if !file_tmp_id.nil? && file_tmp_id != ""
+      file_tmp_dir = FileTmpDir.new 
+      product.save_thumbnail(file_tmp_dir.read(file_tmp_id))
+      file_tmp_dir.delete(file_tmp_id)
+    end
     
     ajax_return(true,{
       :product_id => product.product_id 
