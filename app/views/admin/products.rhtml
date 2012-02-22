@@ -67,8 +67,11 @@ function renderCanvasFromURL(productId , dataURL){
 	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
 	var img = new Image;
 	img.onload = function(){
+		console.log("--draw now!");
 	  ctx.drawImage(img,0,0,<%=canvasWidth%>,<%=canvasHeight%> ); // Or at whatever offset you like
 	}; 
+	
+	console.log(productId + " --loading from " + dataURL);
 	img.src = dataURL;	
 }
 function renderCanvasFromLocalAndUpload(productId , file){
@@ -210,7 +213,7 @@ function uploadForm(productId){
 	
 	$.ajax({
 		url: '/admin/ax_product_submit',
-		method: 'POST',
+		type: 'POST',
 		data: serializedData,
 		success: function(responseText){
 			var responseObject = JSON.parse(responseText);
