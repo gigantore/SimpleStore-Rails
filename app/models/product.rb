@@ -2,7 +2,7 @@ class Product < ActiveRecord::Base
 	has_many :skus
 	belongs_to :brand, :primary_key => :brand_id , :foreign_key => :brand_id
 	belongs_to :category, :primary_key => :category_id , :foreign_key => :category_id
-	
+	set_primary_key :product_id
 	
 	validates :name, :presence => true
 	

@@ -53,8 +53,7 @@ class AdminController < ApplicationController
   # The body is base64 string image data
   # Will put into some temporary folder and return file_tmp_id
   ##
-  def ax_file_upload
-    
+  def ax_file_upload 
     file_base64 = request.body.read
     file_content = Base64.decode64(file_base64)
     
@@ -64,6 +63,34 @@ class AdminController < ApplicationController
     ajax_return(true,{:file_tmp_id => file_tmp_id})
   end
   
+  ##
+  # Submit a product regardless whether its new or edit
+  # Params below are required unless specified otherwise
+  # @param  product_id
+  # @param  name
+  # @param  description
+  # @param  is_enabled     // if not enabled you don't need to have this param. Value is true/false
+  # @param  price   
+  # @param  file_tmp_id   // if not modifying thumbnail you don't need to have this param
+  # @param  category_id
+  ##
+  def ax_product_submit
+    
+    
+    product = Product.new
+    product.product_id = params[:product_id] if params[:product_id] != ""
+    product.name = params[:name]
+    product.description = params[:description]
+    product.is_enabled = params[:is_enabled]
+    product.price = params[:price]
+    product.category_id = params[:category_id]
+    product.save!
+    
+    ajax_return(true,{
+      :product_id => product.product_id 
+    })
+    
+  end
   
   ##
   # => is_success   If true will set "success" to 1, if String will set "success" to 0 and set the String into its error message
