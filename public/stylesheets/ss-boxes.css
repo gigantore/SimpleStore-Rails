@@ -58,7 +58,7 @@
 .ss-products-side-box {
 	position:relative;
 	border: 1px solid #C3C4C4;
-	margin: 40px 0 0 130px;
+	margin: 40px 0 0 0px;
 	width: 178px;
 	height: 400px;
 	margin-bottom: 20px;
@@ -131,17 +131,17 @@
 */
 
 .ss-products-main-box {
-	position:absolute;
-	left:350px;
-	top: 197px;
+	position: absolute;
+	left:250px;
+	top: 100px;
 	/* bottom: 882px; */
-	border: 1px solid #C3C4C4;
+/*	border: 1px solid #C3C4C4;*/
 	width: 725px;
 }
 
 .ss-products-main-box .ss-products-box {
 	position:static;
-	border: 1px solid #C3C4C4;
+/*	border: 1px solid #C3C4C4;*/
 	margin: 1em 1em 1em 1em;
 }
 
