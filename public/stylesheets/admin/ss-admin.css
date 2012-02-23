@@ -32,6 +32,9 @@ body {
 .table_row_item_box_content.odd {
 	background-color: #CCAAAA; 
 }
+.table_row_item_box_content.new {
+	background-color: #CCFFCC; 
+}
 .table_row_item_box_content .left_upper_section {
 	clear:none;
 	float:left;

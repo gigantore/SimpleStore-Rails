@@ -13,7 +13,6 @@ class AdminController < ApplicationController
     items_per_page = params[:items_per_page] || 15
     page_num = params[:page_num] || 1
       
- 
     @categories = Category.pull()
     @products = Product.pull(page_num,items_per_page) 
     @items_per_page = items_per_page
@@ -64,6 +63,16 @@ class AdminController < ApplicationController
     ajax_return(true,{:file_tmp_id => file_tmp_id})
   end
   
+  
+  # @param file_tmp_id
+  def ax_file_delete
+    ftid = params[:file_tmp_id]
+    ajax_return("Unknown file_tmp_id = #{ftid}") if ftid.nil? || ftid==""
+    file_tmp_dir = FileTmpDir.new
+    file_tmp_id = file_tmp_dir.delete(ftid)      
+    ajax_return(true)
+  end
+  
   ##
   # Submit a product regardless whether its new or edit
   # Params below are required unless specified otherwise
@@ -73,10 +82,11 @@ class AdminController < ApplicationController
   # @param  is_enabled     // if not enabled you don't need to have this param. Value is true/false
   # @param  price   
   # @param  file_tmp_id   // if not modifying thumbnail you don't need to have this param
+  #                       //  if getting rid of existing one then pass in -1
   # @param  category_id
   ##
   def ax_product_submit
-    file_tmp_dir = FileTmpDir.new
+    
     
      
     product = nil
@@ -92,8 +102,14 @@ class AdminController < ApplicationController
     product.category_id = params[:category_id]
     product.save!
     
-    file_tmp_id = params[:file_tmp_id]
-    file_tmp_dir.delete(file_tmp_id) if product.save_thumbnail(file_tmp_dir.read(file_tmp_id))
+    file_tmp_dir = FileTmpDir.new
+    file_tmp_id = params[:file_tmp_id] 
+    if file_tmp_id.to_i == -1
+      product.delete_image
+    else
+      file_tmp_dir.delete(file_tmp_id) if product.save_image(file_tmp_dir.read(file_tmp_id))  
+    end
+    
     
     
     ajax_return(true,{

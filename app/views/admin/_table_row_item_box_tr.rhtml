@@ -1,0 +1,75 @@
+<% 
+	 
+=begin
+TEMPLATES:
+
+__product_id__
+__name__
+__description__
+__price__
+__is_enabled__
+__category_id__
+__thumbnail_url__
+__content_css__
+__canvas_height__
+__canvas_width__
+
+=end
+	
+	  
+%> 
+
+<!-- contains the content -->
+
+<tr id='form-content-__product_id__'>
+  <form id='form-__product_id__'>
+  <td> 
+	<div class='table_row_item_box_content __content_css__' style='margin:10px'> 
+	  <input id='form-input-file-tmp-id-__product_id__' type="hidden" name="file_tmp_id" value=""/>
+	  <input type='hidden' name="product_id" value=__product_id__ />
+	  
+	  <!-- this won't be included in serialize() automatically -->
+	  <input id='input-file-btn-__product_id__' type="file" style="top:-1000px;left:-1000px;position:absolute;">
+	
+	  <div class="left_upper_section">
+		<div class="first_half">
+			Name<br />
+			<input id="form-input-name-__product_id__" type="text" name="name" value="__name__" /><br /><br />
+			
+			Category<br />
+			<select id="form-input-category-__product_id__" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
+			</select>
+		 </div>
+		 <div class="second_half">
+			Price<br />
+			<input id="form-input-price-__product_id__" type="text" name="price" value="__price__"/><br /><br /><br />
+			<input id="form-input-is-enabled-__product_id__" type="checkbox" value=true name="is_enabled" /> Enabled
+			<script language='javascript'>
+				$("#form-input-is-enabled-__product_id__").attr("checked",__is_enabled__);
+			</script>
+		 </div>
+	  </div>
+	  
+	  <div class="left_bottom_section">
+		Description<br />
+		<textarea id="form-input-description-__product_id__" name="description" cols=50 rows=7>__description__</textarea><br /><br />
+	  </div>
+	  
+	  
+	  <div class="right_section"> 
+		<canvas id='form-canvas-__product_id__' width=__canvas_width__ height=__canvas_height__ style='cursor:pointer;' dataurl='__thumbnail_url__'></canvas> 
+   
+		<input id='form-canvas-remove-btn-__product_id__' type='button'  value='Remove Picture' style='float:right;'/>
+	  </div>
+		
+	</div>
+  </td>
+  <td class="buttons_section">
+	<div class="buttonwrapper" >
+		<a id="save-btn-__product_id__" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
+		<a id="delete-btn-__product_id__" class="ovalbutton red" href="#" style="display:block"><span><b>Delete</b></span></a><br /><br /> 
+		<a id="cancel-new-btn-__product_id__" class="ovalbutton orange" href="#" style="display:none"><span><b>Cancel New</b></span></a><br /><br /> 
+	</div> 
+  </td>
+  </form>
+</tr>

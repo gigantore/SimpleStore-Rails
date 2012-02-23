@@ -7,7 +7,7 @@ class FileTmpDir < Monitor
   @@tmp_dir = File.expand_path(RAILS_ROOT) + "/tmp/fileupload"
   
   def initialize() 
-    Dir.mkdir(@@tmp_dir) if !FileTest.exist? @@tmp_dir
+    Dir.mkdir(@@tmp_dir,0775) if !FileTest.exist? @@tmp_dir
   end
   
   ##
@@ -18,6 +18,7 @@ class FileTmpDir < Monitor
     path = create_file_path(file_tmp_id)
     
     fh = File.new(path,"wb")
+    fh.chmod( 0775 ) #make sure its deletable
     fh.write(file_content)
     fh.close
     
@@ -33,8 +34,9 @@ class FileTmpDir < Monitor
   end
   
   def delete(file_tmp_id)
-    path = create_file_path(file_tmp_id)
-    File.unlink(path) if FileTest.exist? path
+    raise "file_tmp_id must be something" if file_tmp_id.nil? || file_tmp_id==""
+    path = create_file_path(file_tmp_id) 
+    File.delete(path) if FileTest.exist? path
   end
   
   private

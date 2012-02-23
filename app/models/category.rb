@@ -1,6 +1,6 @@
 class Category < ActiveRecord::Base
   set_primary_key :category_id
-  
+  validates :name, :presence => true  
   
   def self.pull()
     self.find(:all, :order => "name asc").collect{|category| Category.construct_output(category)} 

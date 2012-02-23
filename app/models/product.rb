@@ -1,3 +1,5 @@
+require "product_image"
+
 class Product < ActiveRecord::Base
 	has_many :skus
 	belongs_to :brand, :primary_key => :brand_id , :foreign_key => :brand_id
@@ -10,27 +12,17 @@ class Product < ActiveRecord::Base
 	   product.delete_thumbnail()   
 	end
 	
-	THUMBNAIL_DIR_PATH =  "/images/thumbnails" 
+	def after_initialize
+    @product_image = ProductImage.new product_id
+  end
+	 
 	
-	def save_thumbnail(file_content) 
-	  return false if file_content.nil?
-	  
-	  path = Product.get_thumbnail_path product_id
-	  
-	  fh = File.new(path,"wb")
-	  fh.write(file_content)
-	  fh.close
-	  return true
+	def save_image(file_content)  
+	  @product_image.save(file_content)
 	end
 	
-	def delete_thumbnail()
-    path = Product.get_thumbnail_path product_id
-    if FileTest.exist? path
-      File.delete path
-      return true
-    else
-      return false
-    end 
+	def delete_image() 
+	  @product_image.delete()
 	end
 	
 	
@@ -45,8 +37,8 @@ class Product < ActiveRecord::Base
     page_num = page_num.to_i
     count = count.to_i
   
-    output = []
-    products = self.limit("#{count*(page_num-1)},#{count}")
+    output = [] 
+    products = Product.order("product_id desc").limit("#{count*(page_num-1)},#{count}")
     products.each do |p|
       output.push self.construct_output( p )
     end
@@ -66,8 +58,12 @@ class Product < ActiveRecord::Base
   
   def self.construct_output( product )
     catout = Category.construct_output( product.category )
+      
+    t_url = ProductImage.get_thumbnail_image_path(product.product_id,true)
+    t_url = "" if t_url.nil?
     
-    tb_sys_path = self.get_thumbnail_path product.product_id 
+    f_url = ProductImage.get_fullsize_image_path(product.product_id,true)
+    f_url = "" if f_url.nil?
     
     out = {
       :product_id => product.product_id,
@@ -76,22 +72,10 @@ class Product < ActiveRecord::Base
       :price => product.price,
       :category => catout,
       :is_enabled => product.is_enabled,
-      :thumbnail_url => (FileTest.exist?(tb_sys_path)?self.get_thumbnail_path(product.product_id,false):"")
+      :thumbnail_url => t_url,
+      :fullsize_url => f_url
     }
     return out 
   end  
-    
-  
-  # @param system_path  If true will print out SystemFullPath, whereas if false  will starts with "/images/.." instead
-  def self.get_thumbnail_path(product_id,system_path=true)
-    system_thumbnail_dir = RAILS_ROOT + "/public" + THUMBNAIL_DIR_PATH
-    Dir.mkdir(system_thumbnail_dir) if !FileTest.exist? system_thumbnail_dir
-    
-    if system_path
-      return system_thumbnail_dir +  "/#{product_id}"    
-    else
-      return THUMBNAIL_DIR_PATH +  "/#{product_id}"
-    end  
-      
-  end
+     
 end

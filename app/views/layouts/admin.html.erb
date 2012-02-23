@@ -34,17 +34,20 @@
 			}
 			
 			$(document).ready(function(){
+				var selectedTab = <%= ["products","categories","settings"].index controller.action_name %>;
 				$( "#maintab" ).tabs({
-					selected: <%= ["products","categories","settings"].index controller.action_name %>
+					selected: selectedTab
 				});
 				
 				
 				$("#maintab ul li").click(function(event) { // bind click event to LI 
 					window.location = getTabPathFromLI(this);
+					$("#maintab").tabs("select",selectedTab);// force it to stay 
 				    return false;
 				});
 				$("#maintab ul li a").click(function(event) { // bind click event to link 
-					window.location = getTabPathFromLink(this);
+					window.location = getTabPathFromLink(this); 
+					$("#maintab").tabs("select",selectedTab);// force it to stay 
 				    return false;
 				});				
 				
@@ -59,7 +62,7 @@
 		<div id="maintab">
 			<ul> 
 				<!-- path is custom -->
-				<li path="/admin/products"><a href="#link1" >Products</a></li>
+				<li path="/admin/products"><a href="#link1"  >Products</a></li>
 				<li path="/admin/categories"><a href="#link2" >Categories</a></li> 
 				<li path="/admin/settings"><a href="#link3" >Settings</a></li> 
 			</ul>

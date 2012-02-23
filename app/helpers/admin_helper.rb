@@ -16,4 +16,9 @@ module AdminHelper
     })
   end
   
+  
+  # See the template for params to replace
+  def table_row_item_box_tr()
+    return render(:partial => 'admin/table_row_item_box_tr')
+  end
 end

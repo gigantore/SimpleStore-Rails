@@ -18,6 +18,7 @@ SimpleStore::Application.routes.draw do
   get "admin/settings" 
   post "admin/ax_category_new"
   post "admin/ax_file_upload"
+  post "admin/ax_file_delete"
   post "admin/ax_product_submit"
   post "admin/ax_product_delete"
 #=end  

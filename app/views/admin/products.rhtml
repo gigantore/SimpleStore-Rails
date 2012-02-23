@@ -1,13 +1,16 @@
 <%
 	#index_base = (@page_num - 1) * @items_per_page;
-	canvasWidth = 200;
-	canvasHeight = 200;
+	canvas_size = {
+		:width => 200,
+		:height => 200
+	} 
 %>
 
 <script type="text/javascript">
 function onSelectCategoryChanged(selectDiv){
 	var val = selectDiv.value; 
 	if(val == 'new'){
+		$(selectDiv).val($(selectDiv).attr("valueholder"));
 		var newCat = apprise("Please input new category name",{input:true},function(newCat){
 			if(newCat){
 				console.log(newCat);
@@ -25,24 +28,24 @@ function onSelectCategoryChanged(selectDiv){
 						var data = responseObj.data;
 						window.globals.categories = data.all_categories;
 						
-						redoSelectCategoryOptions();
-						
-						selectDiv.value = data.new_category.category_id;
-						$(selectDiv).attr("valueholder",selectDiv.value);
+						forEachProductId(redoSelectCategoryOptions);
+						 
+						$(selectDiv).val(data.new_category.category_id); 
+						$(selectDiv).attr("valueholder",selectDiv.value); 
 					}
 				})
 			}
 		});   
-		$(selectDiv).val($(selectDiv).attr("valueholder"));
+		
 		 
 	} else {
 		$(selectDiv).attr("valueholder",selectDiv.value);
 	}
 } 
-function redoSelectCategoryOptions(){
-	$('.category_select').empty();
-	
-	var allCategorySelectDivs =  $('.category_select');
+function redoSelectCategoryOptions(productId){ 
+	var selectDiv = $(getInputCategoryId(productId));
+	selectDiv.empty();
+	 
 	var cats = window.globals.categories;
 	var len = cats.length;
 	var options = "<option value=''></option>";
@@ -51,31 +54,41 @@ function redoSelectCategoryOptions(){
 		var cat_id = cc['category_id'];
 		var cat_name = cc['name'];
 		options += "<option value='"+cat_id+"'>"+cat_name+"</option>";
-		
+		//console.log("appending cat_id="+cat_id);
 	}
 	options += "<option value='new'>-- Create New --</option>";
-	allCategorySelectDivs.append(options);
+	selectDiv.append(options);
 	
-	// Now go to each one and select  
-	$.each(allCategorySelectDivs, function(index, div) {  
-  		$(div).val($(div).attr("valueholder"));
-	});
-}
-function renderCanvasFromURL(productId , dataURL){ 
+	selectDiv.val(selectDiv.attr("valueholder"));
+	 
+} 
+function clearCanvasAndDeleteTempImage(productId){
 	var canvasId = getCanvasId(productId);
 	var ctx = $(canvasId)[0].getContext('2d');
-	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
+	ctx.clearRect( 0 , 0 , <%=canvas_size[:width]%>,<%=canvas_size[:height]%> ); 
+	
+	var fileTempId = $(getInputFileTmpHolderId(productId)).val();
+	if(fileTempId){ 
+		$.ajax({
+			url:"/admin/ax_file_delete",
+			type: "POST",
+			data: { file_tmp_id:fileTempId }
+		});
+		
+	} 
+	$(getInputFileTmpHolderId(productId)).val("-1"); // This tells server that the pic is removed
+	return ctx;
+}
+function renderCanvasFromURL(productId , dataURL){  
+	var ctx = clearCanvasAndDeleteTempImage(productId);
 	var img = new Image;
 	img.onload = function(){
-	  ctx.drawImage(img,0,0,<%=canvasWidth%>,<%=canvasHeight%> ); // Or at whatever offset you like
+	  ctx.drawImage(img,0,0,<%=canvas_size[:width]%>,<%=canvas_size[:height]%> ); // Or at whatever offset you like
 	}; 
-	
 	img.src = dataURL;	
 }
 function renderCanvasFromLocalAndUpload(productId , file){
-	var canvasId = getCanvasId(productId);
-	var ctx = $(canvasId)[0].getContext('2d');
-	ctx.clearRect( 0 , 0 , <%=canvasWidth%>,<%=canvasHeight%> ); 
+	var ctx = clearCanvasAndDeleteTempImage(productId);
 	
 	// render to canvas
     var reader = new FileReader;
@@ -83,7 +96,7 @@ function renderCanvasFromLocalAndUpload(productId , file){
     	// render to canvas
         var img = new Image;
         img.onload = function() {
-            ctx.drawImage(img, 0,0,<%=canvasWidth%>,<%=canvasHeight%> );
+            ctx.drawImage(img, 0,0,<%=canvas_size[:width]%>,<%=canvas_size[:height]%> );
         }
         img.src = event.target.result;
     }
@@ -91,7 +104,7 @@ function renderCanvasFromLocalAndUpload(productId , file){
     
     
     // upload now
-    $(getInputFileTmpHolderId(productId)).val(-1);  // trigger that currently it's in progress
+    $(getInputFileTmpHolderId(productId)).val(-9);  // trigger that currently it's in progress
 	var fileUploader = new FileUploadRequest(file);
 	fileUploader.send(function(responseObject){
 		if(responseObject.success !== 1){
@@ -103,117 +116,128 @@ function renderCanvasFromLocalAndUpload(productId , file){
 		var fileTmpId = data.file_tmp_id;
 		
 		$(getInputFileTmpHolderId(productId)).val(fileTmpId);
-	});
-	
-}
-function renderCanvasesWithInitialImages(){ 
-	
-	forEachProductId(function(productId){
-		var dataUrl = $(getCanvasId(productId)).attr("dataurl"); 
-		if(dataUrl === ""){
-			// no image specified... 
-			dataUrl = window.globals.imageNotFoundPath; 
-		}  
-		renderCanvasFromURL(productId,dataUrl); 
 	}); 
 }
-function linkCanvasesWithFileInputs(){  
-	forEachProductId(function(productId){
-		$(getCanvasId(productId)).click(function(){ 
-			$(getFileInputBtnId(productId)).click();
-		});	 
-		$(getFileInputBtnId(productId)).change(function(event){
-			var file = event.target.files[0];
-			processFilePreview(productId,file);
-		});
-		$(getCanvasRemoveBtnId(productId)).click(function(){
-			// remove the image back to default 
-			renderCanvasFromURL(productId,window.globals.imageNotFoundPath);  
-		});		
-	}); 
-}
+function renderCanvasWithInitialImage(productId){ 
+	var dataUrl = $(getCanvasId(productId)).attr("dataurl"); 
+	if(dataUrl === ""){
+		// no image specified... 
+		dataUrl = window.globals.imageNotFoundPath; 
+	}  
+	renderCanvasFromURL(productId,dataUrl); 
+} 
 function processFilePreview(productId,file){
 	renderCanvasFromLocalAndUpload(productId,file); 
 	$(getCanvasRemoveBtnId(productId)).show();// display the remove btn
 	displayFormChangedState(productId); 
-}
-function setupFormDropFiles(){
+} 
+
+function setupFormEventsDetection(productId){   
+	var product = window.globals.productsById[productId];
+	if(!product) apprise("Error happened. Product must not be null");
+	
+	$(getInputNameId(productId)).keyup(function(e){
+		var name = "";
+		if(product.name) name = product.name;
+		if($(this).val() != name) displayFormChangedState(productId); 
+	}); 
+	
+	$(getInputDescriptionId(productId)).keyup(function(e){
+		var description = "";
+		if(product.description) description = product.description;
+		if($(this).val() != description) displayFormChangedState(productId);
+	});
+	
+	$(getInputPriceId(productId)).keyup(function(e){
+		var price = "";
+		if(product.price) price = product.price;
+		if($(this).val() != price) displayFormChangedState(productId);
+	});
+	
+	$(getInputCategoryId(productId))[0].addEventListener("change",function(e){
+		var catId = "";
+		if(product.category) catId = product.category.category_id; 
+		if($(this).val() != (catId)) displayFormChangedState(productId);
+	});
+	
+	$(getInputIsEnabledId(productId))[0].addEventListener("change",function(e){
+		var isEnabled = true;
+		if(product.is_enabled) isEnabled = product.is_enabled;
+		if( $(this).is(':checked') !=  isEnabled) displayFormChangedState(productId);
+	});
+	
+	$(getSaveBtnId(productId)).click(function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		productUpload(productId); 
+	});
+	$(getDeleteBtnId(productId)).click(function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		apprise("Once you delete it can't be brought back",{verify:true},function(r){
+			if(r){ productDelete(productId); }
+		});
+	});		 
+	$(getCancelNewBtnId(productId)).click(function(e){
+		// Cancel is only when it's a temp
+		if(isNaN(productId)===false){
+			apprise("Error... somehow the ID is all numbers which is a real product instead of tmp");
+			return;
+		}
+		
+		productDelete(productId,false);
+	});
+	
+	$(getCanvasId(productId)).click(function(){ 
+		$(getFileInputBtnId(productId)).click();
+	});	 
+	$(getFileInputBtnId(productId)).change(function(event){
+		var file = event.target.files[0];
+		processFilePreview(productId,file);
+	});
+	$(getCanvasRemoveBtnId(productId)).click(function(){
+		// remove the image back to default 
+		renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
+		displayFormChangedState(productId);
+	});		 	
+	
+	//Setup DND
 	var _stopPropagation = function(e){
 		e.stopPropagation();
 		e.preventDefault();
-	}; 
-	var _setupFormDropFilesDo=function(index){ 
-		var dropbox = document.getElementById(getFormContentId(index,false));  
-		dropbox.addEventListener("dragenter", _stopPropagation, false);  
-		dropbox.addEventListener("dragover", _stopPropagation, false);  
-		dropbox.addEventListener("drop", function(e){ 
-			_stopPropagation(e);
-			var dt = e.dataTransfer;  
-  			var file = dt.files[0];
-			processFilePreview(index , file); 
-		}, false); 
-	};
-	
-	forEachProductId(_setupFormDropFilesDo); 
-} 
-
-function setupFormChangesDetection(){  
-
-	forEachProductId(function(productId){  
-		var product = window.globals.productsById[productId];
-		
-		$(getInputNameId(productId)).keyup(function(e){
-			if($(this).val() != product.name) displayFormChangedState(productId); 
-		}); 
-		
-		$(getInputDescriptionId(productId)).keyup(function(e){
-			if($(this).val() != product.description) displayFormChangedState(productId);
-		});
-		
-		$(getInputPriceId(productId)).keyup(function(e){
-			if($(this).val() != product.price) displayFormChangedState(productId);
-		});
-		
-		$(getInputCategoryId(productId))[0].addEventListener("change",function(e){
-			if($(this).val() != product.category.category_id) displayFormChangedState(productId);
-		});
-		
-		$(getInputIsEnabledId(productId))[0].addEventListener("change",function(e){
-			if( $(this).is(':checked') != product.is_enabled) displayFormChangedState(productId);
-		});
-		
-		$(getSaveBtnId(productId)).click(function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			uploadProduct(productId);
-			
-		});
-		$(getDeleteBtnId(productId)).click(function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			apprise("Once you delete it can't be brought back",{verify:true},function(r){
-				if(r){ deleteProduct(productId); }
-			});
-
-			
-		});		
-	});
+	};   
+	var dropbox = document.getElementById(getFormContentId(productId,false));  
+	dropbox.addEventListener("dragenter", _stopPropagation, false);  
+	dropbox.addEventListener("dragover", _stopPropagation, false);  
+	dropbox.addEventListener("drop", function(e){ 
+		_stopPropagation(e);
+		var dt = e.dataTransfer;  
+		var file = dt.files[0];
+		processFilePreview(productId , file); 
+	}, false);  	
 }
 
 function displayFormChangedState(productId){
 	$(getSaveBtnId(productId)).show();
+	$(getDeleteBtnId(productId)).hide(); 
 	$(getFormContentId(productId)).addClass("modified");
+	setProductIdBeingEdited(productId,true);
 }
 function displayFormUnchangedState(productId){
 	$(getSaveBtnId(productId)).hide();
+	$(getDeleteBtnId(productId)).show();	
 	$(getFormContentId(productId)).removeClass("modified");
-	
+	$(getCancelNewBtnId(productId)).hide(); // always hide
+	setProductIdBeingEdited(productId,false);
 }
 
-function uploadProduct(productId){ 
+function productUpload(productId){ 
 	var serializedData = $(getFormId(productId)).serialize()
-	if(serializedData.indexOf("file_tmp_id=-1")){
+	if(serializedData.indexOf("file_tmp_id=-9") >= 0){
 		// TODO: block here and wait until this done before proceeding
+		console.log(serializedData);
+		apprise("TODO: put loadmask here It's still loading...");
+		return;
 	}
 	
 	$.ajax({
@@ -228,37 +252,75 @@ function uploadProduct(productId){
 			
 			$(getInputFileTmpHolderId(productId)).val("");  // empty it out
 			displayFormUnchangedState(productId);
-			convertProductId( productId , responseObject.data.product.product_id , responseObject.data.product );
-			
+			convertProductId( productId , responseObject.data.product.product_id , responseObject.data.product ); 
 		}
 	});
 }
-function deleteProduct(productId){
+function productDelete(productId , serverDeletionDefaultTrue){
+	var deleteDiv = function(){
+		window.globals.productIds = window.globals.productIds.splice(window.globals.productIds.indexOf(productId));
+		delete window.globals.productsById[productId];
+		$(getFormContentId(productId)).fadeOut(1000,function(){
+			$(this).remove();
+		});	
+		setProductIdBeingEdited(productId,false);
+	};
 	
-	$.ajax({
-		url: '/admin/ax_product_delete',
-		type: 'POST',
-		data: {
-			product_id: productId
-		},
-		success: function(responseObject){ 
-			if(responseObject.success!=1){
-				apprise("Failed to delete = "+responseObject.msg);
-				return;
+	
+	if( serverDeletionDefaultTrue === false ){
+		deleteDiv();
+		
+	}else{
+		$.ajax({
+			url: '/admin/ax_product_delete',
+			type: 'POST',
+			data: {
+				product_id: productId
+			},
+			success: function(responseObject){ 
+				if(responseObject.success!=1){
+					apprise("Failed to delete = "+responseObject.msg);
+					return;
+				}
+				
+				deleteDiv();
 			}
-			
-			delete window.globals.productsById[productId];
-			$(getFormContentId(productId)).fadeOut(1000,function(){
-				$(this).remove();
-				//$(getFormId(productId)).remove(); // finally remove the form
-			});
-			
-		}
-	});
+		});
+	}
+}
+function productCreateNew(){
+	// Create tmp product id
+	// As long as this contains at least a non-integer char then its guaranteed
+	//  to not collide with real product id
+	var tmpProductId = "tmp_" + (new Date()).getTime();
+	window.globals.productIds.splice(0,0,tmpProductId);
+	window.globals.productsById[tmpProductId] ={
+		product_id: tmpProductId,
+		is_enabled: true,
+		category_id: "",
+		name: "",
+		description: "",
+		price: "",
+		thumbnail_url: "",
+	};
+	
+	$(getTableRowItemBoxId()).prepend(getTableRow(window.globals.productsById[tmpProductId],"new"));
+	
+	redoSelectCategoryOptions(tmpProductId);
+	renderCanvasWithInitialImage(tmpProductId);
+	displayFormChangedState(tmpProductId);
+	setupFormEventsDetection(tmpProductId); 
+	
+	// This is the only place where it got shown
+	$(getCancelNewBtnId(tmpProductId)).show()
 }
 
 function convertProductId(oldProductId , newProductId , newProductData){
-	delete window.globals.productsById[oldProductId];
+	// deal with key
+	var indexInArray = window.globals.productIds.indexOf(oldProductId);
+	window.globals.productIds[indexInArray] = newProductId;
+	
+	// deal with value
 	window.globals.productsById[newProductId] = newProductData;
 	
 	var oldIdSuffix = "-" + oldProductId;
@@ -270,16 +332,39 @@ function convertProductId(oldProductId , newProductId , newProductData){
 	});	
 }
 
-//////////////////////////// VARIABLES, IDS, GLOBALS
-function forEachProductId(functionToCall){
-	for(var possibleProductId in window.globals.productsById){
-		if(isNaN(possibleProductId)===false){
-			//is number
-			functionToCall(possibleProductId)
+//////////////////////////// VARIABLES, IDS, GENERAL GETTERS/ACCESSORS
+
+function setProductIdBeingEdited(productId , isBeingEdited){ 
+	var index = window.globals.productIdsBeingEdited.indexOf(productId); 
+	if(isBeingEdited){
+		if(index >= 0){
+			// already in array do nothing
+		}else{ 
+			window.globals.productIdsBeingEdited.push(productId);
 		}
+	}else{
+		// unset 
+		if(index >= 0){ 
+			window.globals.productIdsBeingEdited.splice(index,1); 
+		}else{
+			// not in array do nothing
+		}	
+	}
+} 
+
+function forEachProductId(functionToCall){
+	var pids = window.globals.productIds;
+	var ll = pids.length;
+	for(var i = 0 ; i < ll ; i++){
+		var pid = pids[i];
+		functionToCall(pid);
 	}
 }
 
+function getTableRowItemBoxId(prependHashDefaultTrue){
+	var id = 'table_row_item_box';
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
 // You don't really want to use this unless you're submitting since the child of
 //  this form is unpredictable in some browsers due to their auto-correct mechanism
 function getFormId(productId , prependHashDefaultTrue){
@@ -306,6 +391,10 @@ function getSaveBtnId(productId, prependHashDefaultTrue){
 }
 function getDeleteBtnId(productId, prependHashDefaultTrue){
 	var id = "delete-btn-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);	
+}
+function getCancelNewBtnId(productId, prependHashDefaultTrue){
+	var id = "cancel-new-btn-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);	
 }
 function getFileInputBtnId(productId , prependHashDefaultTrue){
@@ -336,22 +425,6 @@ function getInputIsEnabledId(productId , prependHashDefaultTrue){
 function getInputFileTmpHolderId(productId , prependHashDefaultTrue){
 	var id = "form-input-file-tmp-id-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function areFormValuesChanged(productId){
-	var product = window.globals.productsById[productId]; 
-	if($(getInputNameId(productId)).val() != product.name) return true;
-	//console.log("getInputNameId OK");
-	if($(getInputDescriptionId(productId)).val() != product.description) return true;
-	//console.log("getInputDescriptionId OK");	
-	if($(getInputPriceId(productId)).val() != product.price) return true;
-	//console.log("getInputPriceId OK");	
-	if($(getInputCategoryId(productId)).val() != product.category.category_id) return true;
-	//console.log("getInputCategoryId OK");	
-	if(($(getInputIsEnabledId(productId)).attr("checked")=="checked") != product.is_enabled) return true;
-	//console.log("getInputIsEnabledId OK");	
-	if($(getInputFileTmpHolderId(productId)).val() !== "") return true;
-	//console.log("getInputFileTmpHolderId OK");	
-	return false;
 } 
 
 
@@ -362,9 +435,18 @@ window.paginatorCallback = function(pageNum){
 
 function initGlobals(){
 	window.globals = {
+		productIds: <%=raw (@products.collect{|p| p[:product_id]}).to_json %>,
 		categories : <%=raw @categories.to_json%>,
 		itemsPerPage: <%=@items_per_page%>, 
-		imageNotFoundPath: "/images/admin/image-not-found.png"
+		imageNotFoundPath: "/images/admin/image-not-found.png",
+		tableRowTemplate: "<%=escape_javascript table_row_item_box_tr%>",
+		productIdsBeingEdited: [],
+		onBeforeUnload: function(){
+			if(window.globals.productIdsBeingEdited.length > 0) {
+				console.log(window.globals.productIdsBeingEdited);
+				//return "Some changes are unsaved. Sure you want to navigate away?";
+			}
+		}
 	};
 	// assign productsById
 	var productsById = {};
@@ -377,98 +459,64 @@ function initGlobals(){
 	window.globals.productsById = productsById;	
 }
 
- 
+function insertTableRows( ){
+	var index = 0;
+	var table = $(getTableRowItemBoxId());
+	
+	var ll = window.globals.productIds.length; 
+	for(var i = 0 ; i< ll ; i++){
+		var pid = window.globals.productIds[i];
+		var product = window.globals.productsById[pid];  
+		var css = (i%2 == 0 ? "even" : "odd");
+		var tr = getTableRow(product,css);
+		table.append(tr);
+	};
+}
+
+function getTableRow(product,contentCSS){ 
+	var template = String(window.globals.tableRowTemplate);  // Copy!
+	for(var key in product){
+		var templateKey = "__" + key + "__";
+		var regEx = new RegExp(templateKey,"g");
+		template = template.replace(regEx,product[key]);
+	}
+	
+	
+	// In case new product we don't want it to crash
+	var catId = "";
+	if(product.category) catId = product.category.category_id;  
+	
+	// Do other substitution
+	template = template.replace(/__category_id__/g,catId);
+	template = template.replace(/__content_css__/g,contentCSS);
+	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
+	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>");
+	//console.log("--temlate");
+	//console.log(template);
+	return template;
+}
+
 window.onActionViewReady = function(){ 
 	initGlobals(); 
-	redoSelectCategoryOptions(); 
-	renderCanvasesWithInitialImages();
-	linkCanvasesWithFileInputs();
-	setupFormDropFiles();
-	setupFormChangesDetection();
-	 
+	insertTableRows();
+	forEachProductId(redoSelectCategoryOptions); 
+	forEachProductId(renderCanvasWithInitialImage); 
+	forEachProductId(setupFormEventsDetection);
+	
+	window.onbeforeunload = window.globals.onBeforeUnload;
 };
+
+
 
 </script>
 
-<input type='button' value='Create New'/>
+<input type='button' id='create-new-btn' value='Create New' onclick="productCreateNew()"/>
 <br /><br />
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> 
-
  
-<br /><br />
-
-
-<table class='table_row_item_box'  >
-<% @products.each_with_index do |product,index| %> 
-	<%
-		pid = product[:product_id]
-		thumbnail_url = product[:thumbnail_url]
-		
-		content_css = (index % 2 == 0?"even":"odd")
-		
-	%> 
-	<!-- contains the content -->
-	
-	<tr id='form-content-<%=pid%>'>
-	  <form id='form-<%=pid%>'>
-	  <td> 
-	  	<div class='table_row_item_box_content <%=content_css%>' style='margin:10px'> 
-		  <input id='form-input-file-tmp-id-<%=pid%>' type="hidden" name="file_tmp_id" value=""/>
-		  <input type='hidden' name="product_id" value=<%=pid%> />
-		  
-		  <!-- this won't be included in serialize() automatically -->
-		  <input id='input-file-btn-<%=pid%>' type="file" style="top:-1000px;left:-1000px;position:absolute;">
-		
-	      <div class="left_upper_section">
-	      	<div class="first_half">
-		        Name<br />
-		        <input id="form-input-name-<%=pid%>" type="text" name="name" value="<%=product[:name]%>" /><br /><br />
-		        
-		        Category<br />
-		        <select id="form-input-category-<%=pid%>" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="<%=product[:category][:category_id]%>">
-	       		</select>
-	         </div>
-	         <div class="second_half">
-		        Price<br />
-		        <input id="form-input-price-<%=pid%>" type="text" name="price" value="<%=product[:price]%>"/><br /><br /><br />
-		        <input id="form-input-is-enabled-<%=pid%>" type="checkbox" value=true name="is_enabled" <%=product[:is_enabled]?"checked":""%>  />Enabled	         	
-	         </div>
-	      </div>
-	      
-	      <div class="left_bottom_section">
-	      	Description<br />
-	        <textarea id="form-input-description-<%=pid%>" name="description" cols=50 rows=7><%=product[:description]%></textarea><br /><br />
-	      </div>
-	      
-	      
-	      <div class="right_section"> 
-	      	<canvas id='form-canvas-<%=pid%>' width=<%=canvasWidth%> height=<%=canvasHeight%> style='cursor:pointer;' dataurl='<%=thumbnail_url%>'></canvas> 
-	   
-			<input id='form-canvas-remove-btn-<%=pid%>' type='button'  value='Remove Picture' style='float:right;'/>
-	      </div>
-	        
-	    </div>
-	  </td>
-	  <td class="buttons_section">
-	  	<div class="buttonwrapper" >
-	  		<a id="save-btn-<%=pid%>" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
-	  		<a id="delete-btn-<%=pid%>" class="ovalbutton red" href="#" style="display:block"><span><b>Delete</b></span></a><br /><br /> 
-	  	</div>
-	  	<!--
-	  	<image src='/images/loading.gif'/>
-	  	-->
-	  </td>
-	  </form>
-	  
-	</tr>
-	
-	
-	
-	
-
-<% end %>
-</table>
-
+<br /><br /> 
+<table id='table_row_item_box' class='table_row_item_box'  >
+</table> 
 <br /><br />
  
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,   :js_callback => 'window.paginatorCallback'%> 
