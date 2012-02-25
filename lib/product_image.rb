@@ -10,6 +10,7 @@ class ProductImage
    
   
   def initialize(product_id) 
+    raise "ProductImage must take in a valid product_id (non-nil,numeric)" if product_id.nil? || product_id.to_s.to_i != product_id
     FileUtils.mkdir_p(SYSTEM_PATH_F) if !FileTest.exist? SYSTEM_PATH_F
     FileUtils.mkdir_p(SYSTEM_PATH_T) if !FileTest.exist? SYSTEM_PATH_T 
     @product_id = product_id

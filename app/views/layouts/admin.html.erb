@@ -5,14 +5,18 @@
 		
 		<%= stylesheet_link_tag "jquery/jquery-ui/ui-lightness/jquery-ui-1.8.17.custom.css" %>
 		<%= stylesheet_link_tag "jquery/apprise/apprise.min.css" %>
+		<%= stylesheet_link_tag "jquery/loadmask/jquery.loadmask.css" %>
 		<%= stylesheet_link_tag "jquery/fileupload/jquery.fileupload-ui.css" %> 
 		<%= stylesheet_link_tag "admin/ss-admin.css" %>
 		<%= stylesheet_link_tag "oval-button/oval-button.css" %>
 		
 		<script type="text/javascript" src="/javascripts/jquery/jquery-1.7.1.min.js"></script> 
 		<script type="text/javascript" src="/javascripts/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/loadmask/jquery.loadmask.min.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery/apprise/apprise-1.5.min.js"></script>
 		<script type="text/javascript" src="/javascripts/admin/FileUploadRequest.js"></script>
+		<script type="text/javascript" src="/javascripts/AjaxRequest.js"></script>
+		<script type="text/javascript" src="/javascripts/imageuploader.js"></script>
 		
 		<!--
 		<script type="text/javascript" src="/javascripts/jquery/fileupload/vendor/jquery.ui.widget.js"></script>
@@ -23,7 +27,7 @@
 		<script type="text/javascript" src="/javascripts/jquery/fileupload/jquery.fileupload-ip.js"></script>
 		--> 
 		 
-		<%= csrf_meta_tag %>
+		<%= csrf_meta_tag %> 
 		
 		<script language="javascript">
 			function getTabPathFromLink(link){
@@ -34,7 +38,7 @@
 			}
 			
 			$(document).ready(function(){
-				var selectedTab = <%= ["products","categories","settings"].index controller.action_name %>;
+				var selectedTab = <%= ["products","categories", "store_settings","about_page","my_account"].index controller.action_name %>;
 				$( "#maintab" ).tabs({
 					selected: selectedTab
 				});
@@ -59,22 +63,31 @@
 		</script>
 	</head>
 	<body>   
-		<div id="maintab">
+		<div id="maintab"> 
+			
 			<ul> 
 				<!-- path is custom -->
 				<li path="/admin/products"><a href="#link1"  >Products</a></li>
-				<li path="/admin/categories"><a href="#link2" >Categories</a></li> 
-				<li path="/admin/settings"><a href="#link3" >Settings</a></li> 
+				<li path="/admin/categories"><a href="#link2" >Categories</a></li>  
+				<li path="/admin/store_settings"><a href="#link4" >Store Settings</a></li> 
+				<li path="/admin/about_page"><a href="#link5" >About Page</a></li> 
+				<li path="/admin/my_account"><a href="#link6" >My Account</a></li>
 			</ul>
 			<div id="link1">
 				<%= controller.action_name == "products" ? yield : "...Loading..."%>
 			</div>		
 			<div id="link2">
 				<%= controller.action_name == "categories" ? yield : "...Loading..."%>
+			</div>	 
+			<div id="link4">
+				<%= controller.action_name == "store_settings" ? yield : "...Loading..."%>
+			</div>		
+			<div id="link5">
+				<%= controller.action_name == "about_page" ? yield : "...Loading..."%>
 			</div>	
-			<div id="link3">
-				<%= controller.action_name == "settings" ? yield : "...Loading..."%>
-			</div>
+			<div id="link6">
+				<%= controller.action_name == "my_account" ? yield : "...Loading..."%>
+			</div>			
 		</div>
 	</body>
 	

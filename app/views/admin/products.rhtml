@@ -62,6 +62,7 @@ function redoSelectCategoryOptions(productId){
 	selectDiv.val(selectDiv.attr("valueholder"));
 	 
 } 
+/*
 function clearCanvasAndDeleteTempImage(productId){
 	var canvasId = getCanvasId(productId);
 	var ctx = $(canvasId)[0].getContext('2d');
@@ -131,7 +132,7 @@ function processFilePreview(productId,file){
 	$(getCanvasRemoveBtnId(productId)).show();// display the remove btn
 	displayFormChangedState(productId); 
 } 
-
+*/
 function setupFormEventsDetection(productId){   
 	var product = window.globals.productsById[productId];
 	if(!product) apprise("Error happened. Product must not be null");
@@ -188,6 +189,15 @@ function setupFormEventsDetection(productId){
 		productDelete(productId,false);
 	});
 	
+	var imageuploader = $(getFormImageAreaId(productId)).imageuploader({
+		dndArea: getFormContentId(productId),
+		thumbnailUrl: product.thumbnail_url
+	});
+	imageuploader.bind("imageuploader.imagechanged",function(){
+		displayFormChangedState(productId);
+	});
+	
+/*	
 	$(getCanvasId(productId)).click(function(){ 
 		$(getFileInputBtnId(productId)).click();
 	});	 
@@ -199,8 +209,7 @@ function setupFormEventsDetection(productId){
 		// remove the image back to default 
 		renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
 		displayFormChangedState(productId);
-	});		 	
-	
+	});		 	 
 	//Setup DND
 	var _stopPropagation = function(e){
 		e.stopPropagation();
@@ -215,6 +224,7 @@ function setupFormEventsDetection(productId){
 		var file = dt.files[0];
 		processFilePreview(productId , file); 
 	}, false);  	
+	*/
 }
 
 function displayFormChangedState(productId){
@@ -233,14 +243,28 @@ function displayFormUnchangedState(productId){
 
 function productUpload(productId){ 
 	var serializedData = $(getFormId(productId)).serialize()
-	if(serializedData.indexOf("file_tmp_id=-9") >= 0){
+	 
+	var fileTmpIds = $(getFormImageAreaId(productId)).imageuploader("getFileTmpId"); 
+	if(fileTmpIds.length !== 1){
+		apprise("Internal Error: returned ids len is != 1 ");
+	}
+	var fileTmpId = parseInt(fileTmpIds[0],10);
+	if(fileTmpId === -9){
 		// TODO: block here and wait until this done before proceeding
-		console.log(serializedData);
-		apprise("TODO: put loadmask here It's still loading...");
+		$(getFormLoadmaskAreaId(productId)).mask("Still uploading image please wait...");
+		setTimeout(function(){
+			productUpload(productId);
+		},1000);
 		return;
 	}
+	serializedData += "&file_tmp_id="+fileTmpId;
+	 
+	var product = window.globals.productsById[productId];
+	serializedData += "&attr="+JSON.stringify(product.attr); 
 	
-	$.ajax({
+	
+	
+	(new AjaxRequest({
 		url: '/admin/ax_product_submit',
 		type: 'POST',
 		data: serializedData,
@@ -253,8 +277,9 @@ function productUpload(productId){
 			$(getInputFileTmpHolderId(productId)).val("");  // empty it out
 			displayFormUnchangedState(productId);
 			convertProductId( productId , responseObject.data.product.product_id , responseObject.data.product ); 
-		}
-	});
+		},
+		loadMaskQuery: getFormLoadmaskAreaId(productId)
+	})).start();
 }
 function productDelete(productId , serverDeletionDefaultTrue){
 	var deleteDiv = function(){
@@ -271,21 +296,19 @@ function productDelete(productId , serverDeletionDefaultTrue){
 		deleteDiv();
 		
 	}else{
-		$.ajax({
+		(new AjaxRequest({
 			url: '/admin/ax_product_delete',
 			type: 'POST',
-			data: {
-				product_id: productId
-			},
+			data: { product_id: productId },
 			success: function(responseObject){ 
 				if(responseObject.success!=1){
 					apprise("Failed to delete = "+responseObject.msg);
 					return;
-				}
-				
+				} 
 				deleteDiv();
-			}
-		});
+			},
+			loadMaskQuery: getFormLoadmaskAreaId(productId)
+		})).start();
 	}
 }
 function productCreateNew(){
@@ -293,6 +316,7 @@ function productCreateNew(){
 	// As long as this contains at least a non-integer char then its guaranteed
 	//  to not collide with real product id
 	var tmpProductId = "tmp_" + (new Date()).getTime();
+	var colorCode = getRandomColorCode();
 	window.globals.productIds.splice(0,0,tmpProductId);
 	window.globals.productsById[tmpProductId] ={
 		product_id: tmpProductId,
@@ -302,9 +326,13 @@ function productCreateNew(){
 		description: "",
 		price: "",
 		thumbnail_url: "",
+		attr:{
+			color: colorCode
+		}
 	};
 	
-	$(getTableRowItemBoxId()).prepend(getTableRow(window.globals.productsById[tmpProductId],"new"));
+	var bgColor = "background-color:"+colorCode+";";
+	$(getTableRowItemBoxId()).prepend(getTableRow(window.globals.productsById[tmpProductId],bgColor));
 	
 	redoSelectCategoryOptions(tmpProductId);
 	renderCanvasWithInitialImage(tmpProductId);
@@ -333,6 +361,11 @@ function convertProductId(oldProductId , newProductId , newProductData){
 }
 
 //////////////////////////// VARIABLES, IDS, GENERAL GETTERS/ACCESSORS
+function getRandomColorCode(){
+	var cc = window.globals.colorCodes;
+	var l = cc.length;
+	return cc[Math.floor(Math.random()*l)];
+}
 
 function setProductIdBeingEdited(productId , isBeingEdited){ 
 	var index = window.globals.productIdsBeingEdited.indexOf(productId); 
@@ -377,6 +410,14 @@ function getFormContentId(productId , prependHashDefaultTrue){
 	var id = "form-content-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
 }
+function getFormLoadmaskAreaId(productId){
+	return "tr"+getFormContentId(productId)+" td";
+}
+function getFormImageAreaId(productId , prependHashDefaultTrue){
+	var id = "form-image-area-" + productId;
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
+/*
 function getCanvasId(productId , prependHashDefaultTrue){
 	var id = "form-canvas-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
@@ -385,6 +426,7 @@ function getCanvasRemoveBtnId(productId , prependHashDefaultTrue){
 	var id = "form-canvas-remove-btn-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
 } 
+*/
 function getSaveBtnId(productId, prependHashDefaultTrue){
 	var id = "save-btn-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);	
@@ -438,7 +480,7 @@ function initGlobals(){
 		productIds: <%=raw (@products.collect{|p| p[:product_id]}).to_json %>,
 		categories : <%=raw @categories.to_json%>,
 		itemsPerPage: <%=@items_per_page%>, 
-		imageNotFoundPath: "/images/admin/image-not-found.png",
+		//imageNotFoundPath: "/images/admin/image-not-found.png",
 		tableRowTemplate: "<%=escape_javascript table_row_item_box_tr%>",
 		productIdsBeingEdited: [],
 		onBeforeUnload: function(){
@@ -446,7 +488,18 @@ function initGlobals(){
 				console.log(window.globals.productIdsBeingEdited);
 				//return "Some changes are unsaved. Sure you want to navigate away?";
 			}
-		}
+		},
+		colorCodes: [
+			"#ADFF2F",
+			"#98FB98",
+			"#66CDAA",
+			"#AFEEEE",
+			"#D8BFD8",
+			"#FFF8DC",
+			"#F4A460",
+			"#FFC0CB",
+			"#FFE4B5"
+		]
 	};
 	// assign productsById
 	var productsById = {};
@@ -466,14 +519,14 @@ function insertTableRows( ){
 	var ll = window.globals.productIds.length; 
 	for(var i = 0 ; i< ll ; i++){
 		var pid = window.globals.productIds[i];
-		var product = window.globals.productsById[pid];  
-		var css = (i%2 == 0 ? "even" : "odd");
-		var tr = getTableRow(product,css);
+		var product = window.globals.productsById[pid];
+		var styleCSS = "background-color:"+product.attr.color+";";
+		var tr = getTableRow(product,styleCSS);
 		table.append(tr);
 	};
 }
 
-function getTableRow(product,contentCSS){ 
+function getTableRow(product,styleCSS){ 
 	var template = String(window.globals.tableRowTemplate);  // Copy!
 	for(var key in product){
 		var templateKey = "__" + key + "__";
@@ -488,7 +541,7 @@ function getTableRow(product,contentCSS){
 	
 	// Do other substitution
 	template = template.replace(/__category_id__/g,catId);
-	template = template.replace(/__content_css__/g,contentCSS);
+	template = template.replace(/__content_style_css__/g,styleCSS);
 	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
 	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>");
 	//console.log("--temlate");
@@ -500,9 +553,8 @@ window.onActionViewReady = function(){
 	initGlobals(); 
 	insertTableRows();
 	forEachProductId(redoSelectCategoryOptions); 
-	forEachProductId(renderCanvasWithInitialImage); 
-	forEachProductId(setupFormEventsDetection);
-	
+	//forEachProductId(renderCanvasWithInitialImage); 
+	forEachProductId(setupFormEventsDetection); 
 	window.onbeforeunload = window.globals.onBeforeUnload;
 };
 

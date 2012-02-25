@@ -5,11 +5,12 @@ class AdminController < ApplicationController
    
   
   def index 
+
      redirect_to :action=>products
   end
   
    
-  def products 
+  def products  
     items_per_page = params[:items_per_page] || 15
     page_num = params[:page_num] || 1
       
@@ -25,7 +26,56 @@ class AdminController < ApplicationController
     @categories = Category.pull()
   end 
   
-  def settings
+  ##
+  # If type is POST then expects params;
+  # => phone_number
+  # => store_name
+  ##
+  def store_settings
+    if request.post?
+      phone_number = params[:phone_number]  
+      pn_db = StoreSetting.find_or_initialize_by_key("phone_number") 
+      pn_db.value = phone_number
+      pn_db.save!
+      
+      store_name = params[:store_name]
+      sn_db = StoreSetting.find_or_initialize_by_key("store_name") 
+      sn_db.value = store_name
+      sn_db.save!       
+    end
+    
+   setting = StoreSetting.find_by_key("phone_number")
+   @phone_number=""
+   @phone_number = setting.value if !setting.nil?
+   
+   
+   setting = StoreSetting.find_by_key("store_name")
+   @store_name=""
+   @store_name = setting.value if !setting.nil?
+ end
+  
+  ##
+  # If type is POST, this method expects to get param "about_text" 
+  #   and will be put into db
+  ##
+  def about_page
+    if request.post?
+      about_text = params[:about_text] 
+      
+      text_db = StoreSetting.find_or_create_by_key("about_text")  
+      text_db.value = about_text
+      text_db.save! 
+      
+    end 
+    
+   setting = StoreSetting.find_by_key("about_text")
+   @about_text=""
+   @about_text = setting.value if !setting.nil?
+     
+    
+  end
+  
+  def my_account
     
   end
   
@@ -84,10 +134,9 @@ class AdminController < ApplicationController
   # @param  file_tmp_id   // if not modifying thumbnail you don't need to have this param
   #                       //  if getting rid of existing one then pass in -1
   # @param  category_id
+  # @param  attr          // this must be JSON string
   ##
   def ax_product_submit
-    
-    
      
     product = nil
     product = Product.find(:first, :conditions => {:product_id => params[:product_id]}) if params[:product_id] != ""
@@ -100,13 +149,14 @@ class AdminController < ApplicationController
     product.is_enabled = params[:is_enabled]
     product.price = params[:price]
     product.category_id = params[:category_id]
+    product.attr_json = params[:attr]
     product.save!
     
     file_tmp_dir = FileTmpDir.new
     file_tmp_id = params[:file_tmp_id] 
     if file_tmp_id.to_i == -1
       product.delete_image
-    else
+    elsif file_tmp_id != ""
       file_tmp_dir.delete(file_tmp_id) if product.save_image(file_tmp_dir.read(file_tmp_id))  
     end
     

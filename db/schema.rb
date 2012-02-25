@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120222203251) do
+ActiveRecord::Schema.define(:version => 20120224215433) do
 
   create_table "brands", :primary_key => "brand_id", :force => true do |t|
     t.string   "name",       :null => false
@@ -30,10 +30,17 @@ ActiveRecord::Schema.define(:version => 20120222203251) do
     t.string   "origin",      :default => ""
     t.boolean  "is_enabled",  :default => true
     t.float    "price",       :default => 0.0
+    t.text     "attr_json"
     t.datetime "created_at"
   end
 
   add_index "products", ["brand_id"], :name => "brand_id"
   add_index "products", ["category_id"], :name => "category_id"
+
+  create_table "store_settings", :primary_key => "key", :force => true do |t|
+    t.text     "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end

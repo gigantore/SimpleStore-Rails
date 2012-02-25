@@ -1,7 +1,7 @@
 <% 
 	 
 =begin
-TEMPLATES:
+TEMPLATES (REQUIRED TO SUBSTITUTE):
 
 __product_id__
 __name__
@@ -9,8 +9,8 @@ __description__
 __price__
 __is_enabled__
 __category_id__
-__thumbnail_url__
-__content_css__
+__thumbnail_url__ 
+__content_style_css__
 __canvas_height__
 __canvas_width__
 
@@ -24,8 +24,7 @@ __canvas_width__
 <tr id='form-content-__product_id__'>
   <form id='form-__product_id__'>
   <td> 
-	<div class='table_row_item_box_content __content_css__' style='margin:10px'> 
-	  <input id='form-input-file-tmp-id-__product_id__' type="hidden" name="file_tmp_id" value=""/>
+	<div class='table_row_item_box_content ' style='margin:10px;__content_style_css__'>  
 	  <input type='hidden' name="product_id" value=__product_id__ />
 	  
 	  <!-- this won't be included in serialize() automatically -->
@@ -56,10 +55,11 @@ __canvas_width__
 	  </div>
 	  
 	  
-	  <div class="right_section"> 
+	  <div id="form-image-area-__product_id__" class="right_section"> 
+	  	<!--
 		<canvas id='form-canvas-__product_id__' width=__canvas_width__ height=__canvas_height__ style='cursor:pointer;' dataurl='__thumbnail_url__'></canvas> 
-   
 		<input id='form-canvas-remove-btn-__product_id__' type='button'  value='Remove Picture' style='float:right;'/>
+		-->
 	  </div>
 		
 	</div>

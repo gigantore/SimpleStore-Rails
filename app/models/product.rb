@@ -9,20 +9,23 @@ class Product < ActiveRecord::Base
 	 
 	
 	before_destroy do |product| 
-	   product.delete_thumbnail()   
+	   product.delete_image()   
 	end
 	
-	def after_initialize
-    @product_image = ProductImage.new product_id
+	def after_initialize 
+  end
+  def after_save 
   end
 	 
 	
-	def save_image(file_content)  
-	  @product_image.save(file_content)
+	def save_image(file_content) 
+	  product_image = ProductImage.new product_id  
+	  product_image.save(file_content)
 	end
 	
-	def delete_image() 
-	  @product_image.delete()
+	def delete_image()  
+	  product_image = ProductImage.new product_id
+	  product_image.delete()
 	end
 	
 	
@@ -65,6 +68,9 @@ class Product < ActiveRecord::Base
     f_url = ProductImage.get_fullsize_image_path(product.product_id,true)
     f_url = "" if f_url.nil?
     
+    attr = nil
+    attr = ActiveSupport::JSON.decode(product.attr_json) if !product.attr_json.nil?
+    
     out = {
       :product_id => product.product_id,
       :name => product.name,
@@ -73,7 +79,8 @@ class Product < ActiveRecord::Base
       :category => catout,
       :is_enabled => product.is_enabled,
       :thumbnail_url => t_url,
-      :fullsize_url => f_url
+      :fullsize_url => f_url,
+      :attr => attr
     }
     return out 
   end  

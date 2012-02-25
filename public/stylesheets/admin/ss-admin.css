@@ -2,6 +2,7 @@ body {
 	width: 850px;
 	margin-left: auto;
 	margin-right: auto;
+	font-size: .8em !important;
 }
  
  
@@ -19,22 +20,12 @@ body {
 	background-color: yellow;
 }
 
-.table_row_item_box_content {
-	font-size: .8em !important;
+.table_row_item_box_content { 
 	clear:both;
 	width:560px;
 	height:280px; 
 	padding: 20px;
-}
-.table_row_item_box_content.even {
-	background-color: #F3E2A9; 
-}
-.table_row_item_box_content.odd {
-	background-color: #CCAAAA; 
-}
-.table_row_item_box_content.new {
-	background-color: #CCFFCC; 
-}
+} 
 .table_row_item_box_content .left_upper_section {
 	clear:none;
 	float:left;
