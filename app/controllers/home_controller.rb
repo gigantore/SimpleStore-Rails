@@ -16,6 +16,9 @@ class HomeController < ApplicationController
 	  # @items_per_page = items_per_page
 	  # @page_num = page_num
 	  # @total_items = Sku.count
+	  # @store_logo_url = StoreSetting.get_image_path(:store_logo,false) || ""
+    # @store_front_image_url = StoreSetting.get_image_path(:store_front_image,false) || ""
+	  #
 	  @brands = Brand.limit(10)
 	  @categories = Category.pull()
     @products = Product.pull(page_num,items_per_page) 

@@ -7,8 +7,7 @@
  * Dependencies:
  *	jquery
  *  jquery-plugin Apprise
- * 	FileReader (so far only Firefox & Chrome)
- *  FileUploaderRequest
+ * 	FileReader (so far only Firefox & Chrome) 
  *  
  */
 
@@ -22,7 +21,8 @@
 					dataUrl: "",
 					height: 200,
 					width: 200, 
-					thumbnailUrl: "", 
+					formInputName: 'file_tmp_id',
+					imageUrl: "", 
 					fileDeleteUrl:"/admin/ax_file_delete",
 					defaultImageUrl: "/images/admin/image-not-found.png",
 					uniqueId: __imageUploaderUniqueId__++,
@@ -36,10 +36,12 @@
 				var fileTmpDivId = "imageuploader-filetmpdiv-input__" + options.uniqueId;
 				
 				var html  = ""; 
-				html += "<input type='hidden' id='"+fileTmpDivId+"' name='file_tmp_id' value='' />";
-				html += "<canvas id='"+canvasId+"' width="+options.height+" height="+options.width+" style='cursor:pointer;' dataurl='"+options.dataUrl+"'></canvas>"; 
+				html += "<div style='width:"+options.width+"px;height:"+options.height+"px;clear:none'>";
+				html += "<input type='hidden' id='"+fileTmpDivId+"' name='"+options.formInputName+"' value='' />";
+				html += "<canvas id='"+canvasId+"' height='"+options.height+"px' width='"+options.width+"px' style='cursor:pointer;width:"+options.width+"px;height:"+options.height+"px' dataurl='"+options.dataUrl+"'></canvas>"; 
 				html += "<input id='"+removeBtnId+"' type='button'  value='Remove Picture' style='float:right;'/>";
-				html += "<input type='file' id='"+fileInputId+"' style='position:absolute;top:-1000000px;left:-1000000px' type='file'/>";  //hide this 
+				html += "<input type='file' id='"+fileInputId+"' style='position:absolute;top:-1000000px;left:-1000000px' type='file'/>";  //hide this
+				html += "</div>" 
 				this.prepend(html);
 				
 				
@@ -63,6 +65,7 @@
 				$(this.data("removeBtnId")).click($.proxy(function(){
 					// remove the image back to default 
 					methods.renderCanvasFromURL_.apply(this, [options.defaultImageUrl]);
+					$(this.data("fileTmpDivId")).val("-1"); //mark deletion
 					this.trigger('imageuploader.imagechanged');
 				},this));	
 				 
@@ -85,7 +88,7 @@
 				}
 				 
 				// Done. render canvas 
-				var imageUrl = (options.thumbnailUrl!=="" && options.thumbnailUrl!=null)?options.thumbnailUrl:options.defaultImageUrl;
+				var imageUrl = (options.imageUrl!=="" && options.imageUrl!=null)?options.imageUrl:options.defaultImageUrl;
 				methods.renderCanvasFromURL_.apply(this,[imageUrl]);
 				 
 			};
@@ -134,7 +137,7 @@
 				});
 				
 			} 
-			$(this.data("fileTmpDivId")).val("-1"); // This tells server that the pic is removed
+			$(this.data("fileTmpDivId")).val(""); // Neutralize
 			return ctx;				
 		},
 		
@@ -157,7 +160,8 @@
 		    
 		     
 		    // upload now
-		    $(this.fileDivTmpId).val(-9);  // trigger that currently it's in progress
+		    var fileDivTmpId = this.data("fileTmpDivId");
+		    $(fileDivTmpId).val(-9);  // trigger that currently it's in progress
 			var fileUploader = new FileUploadRequest(file);
 			fileUploader.send($.proxy(function(responseObject){
 				if(responseObject.success !== 1){
@@ -165,8 +169,8 @@
 					return;
 				}
 				var data = responseObject.data;
-				var fileTmpId = data.file_tmp_id; 
-				$(this.data("fileTmpDivId")).val(fileTmpId);
+				var fileTmpId = data.file_tmp_id;   
+				$(fileDivTmpId).val(fileTmpId);
 			},this)); 
 		},
 		

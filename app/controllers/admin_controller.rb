@@ -30,6 +30,8 @@ class AdminController < ApplicationController
   # If type is POST then expects params;
   # => phone_number
   # => store_name
+  # => store_logo_file_tmp_id
+  # => store_front_image_file_tmp_id
   ##
   def store_settings
     if request.post?
@@ -41,7 +43,21 @@ class AdminController < ApplicationController
       store_name = params[:store_name]
       sn_db = StoreSetting.find_or_initialize_by_key("store_name") 
       sn_db.value = store_name
-      sn_db.save!       
+      sn_db.save!     
+       
+      deal_with_file = Proc.new do |image_type , file_tmp_id| 
+        if file_tmp_id.to_i == -1  #delete
+          StoreSetting.delete_image(image_type) 
+        elsif file_tmp_id != ""
+          FileTmpDir.new.read_and_delete(file_tmp_id) do |this,content|
+            StoreSetting.save_image(image_type,content) if !content.nil? 
+          end 
+        end       
+      end
+      
+      deal_with_file.call(:store_logo,params[:store_logo_file_tmp_id])
+      deal_with_file.call(:store_front_image,params[:store_front_image_file_tmp_id])
+      
     end
     
    setting = StoreSetting.find_by_key("phone_number")
@@ -52,6 +68,10 @@ class AdminController < ApplicationController
    setting = StoreSetting.find_by_key("store_name")
    @store_name=""
    @store_name = setting.value if !setting.nil?
+   
+   @store_logo_url = StoreSetting.get_image_path(:store_logo,false) || ""
+   @store_front_image_url = StoreSetting.get_image_path(:store_front_image,false) || ""
+   
  end
   
   ##
@@ -77,6 +97,13 @@ class AdminController < ApplicationController
   
   def my_account
     
+  end
+  
+  def ax_password_update
+    current_pass = params[:current_password]
+    new_pass = params[:new_password]
+    # TODO: implement me! 
+    ajax_return("Implement me!");
   end
   
   ##
@@ -151,13 +178,15 @@ class AdminController < ApplicationController
     product.category_id = params[:category_id]
     product.attr_json = params[:attr]
     product.save!
+     
     
-    file_tmp_dir = FileTmpDir.new
-    file_tmp_id = params[:file_tmp_id] 
+    file_tmp_id = params[:file_tmp_id]
     if file_tmp_id.to_i == -1
       product.delete_image
     elsif file_tmp_id != ""
-      file_tmp_dir.delete(file_tmp_id) if product.save_image(file_tmp_dir.read(file_tmp_id))  
+      FileTmpDir.new.read_and_delete(file_tmp_id) do |this,content|
+        product.save_image(content)  if !content.nil?
+      end 
     end
     
     

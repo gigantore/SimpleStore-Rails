@@ -1,20 +1,80 @@
+<script language='JavaScript'>
+$(document).ready(function(){ 
+	// setup the images
+	$("#store_logo").imageuploader({
+		formInputName: "store_logo_file_tmp_id",
+		imageUrl: "<%=@store_logo_url%>"
+	});
+	$("#store_front_image").imageuploader({
+		width: 600,
+		height: 400,
+		formInputName: "store_front_image_file_tmp_id",
+		imageUrl: "<%=@store_front_image_url%>"
+	});	
+	
+	// setup events
+	$("#store_logo").bind("imageuploader.imagechanged",function(){
+		window.globals.isValueChanged=true;
+	});
+	$("#store_front_image").bind("imageuploader.imagechanged",function(){
+		window.globals.isValueChanged=true;
+	});
+	$("input").change(function(){
+		window.globals.isValueChanged=true;
+	})
+});
+
+function onSaveBtnClicked(){
+	var store_logo_fid = $("#store_logo").imageuploader("getFileTmpId")[0];
+	var store_front_image_fid = $("#store_front_image").imageuploader("getFileTmpId")[0];
+	
+	if(store_logo_fid == -9 || store_front_image_fid == -9){
+		$("#settings_form").mask("The image(s) are still being uploaded please wait...");
+		setTimeout(onSaveBtnClicked,1000);
+		return;
+	}
+		
+	window.globals.isValueChanged = false;
+	document.getElementById('settings_form').submit(); 
+}
+
+window.globals = {
+	isValueChanged: false,
+	onBeforeUnload: function(){ 
+		if (window.globals.isValueChanged){
+			return "Some things were changed and unsaved.";
+		}
+	}
+};
+window.onbeforeunload = window.globals.onBeforeUnload;
+
+</script>
+
 <br /><br />
 <form method="post" id="settings_form">
-
-
 <hr />
-
 Store Name<br />
 <%= text_field_tag "store_name", @store_name %>
 <br /><br />
+
 
 Phone Number<br />
 <%= text_field_tag "phone_number", @phone_number %>
 <br /><br />
 
-<br /><br /><hr />
-Main Logo<br /> 
+<br /><br />
 
+<hr />
+Store Logo<br /> 
+<div id='store_logo'>
+</div>
+<br /><br />
+
+<hr />
+Store Front Image<br /> 
+<div id='store_front_image'>
+</div>
+<br /><br />
 
 
 
@@ -22,6 +82,6 @@ Main Logo<br />
 <br />
 <br />
 <div class="buttonwrapper" >
-	<a class="ovalbutton green" href="#" style="float:right;" onclick="document.getElementById('settings_form').submit();"><span><b>Save Changes</b></span></a> 
+	<a class="ovalbutton green" href="#" style="float:right;" onclick=" onSaveBtnClicked();return false;"><span><b>Save Changes</b></span></a> 
 </div> 
 </form>

@@ -20,6 +20,8 @@ SimpleStore::Application.routes.draw do
   get "admin/about_page" 
   post "admin/about_page"
   get "admin/my_account" 
+  
+  post "admin/ax_password_update"
   post "admin/my_account" 
   post "admin/ax_category_new"
   post "admin/ax_file_upload"

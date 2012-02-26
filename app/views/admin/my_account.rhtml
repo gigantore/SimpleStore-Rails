@@ -1,0 +1,60 @@
+<script language="JavaScript">
+function onSaveBtnClicked(){
+
+	if($("#new_password").val() != $("#new_password_repeat").val()){
+		apprise("New Password and Repeat New Password do not match. Please retype.");
+		return;
+	}
+	
+	// submit ajax now
+	var serializedData = $("#form").serialize();
+	console.log(serializedData);
+	
+	if(serializedData.indexOf("=&") >= 0){
+		apprise("One of the field(s) is empty. Please fill it in");
+		return;
+	}
+	
+	
+	$.ajaxWithMask({
+		url: "/admin/ax_password_update",
+		type: "POST",
+		data: serializedData,
+		loadMaskQuery: "#form",
+		success: function(responseObject){ 
+			if(responseObject.success!=1){
+				apprise("Failed to update password = "+responseObject.msg);
+				return;
+			}  
+			apprise("Password was successfully updated!",{},function(){
+				// update page
+				location.reload(true);
+			}); 
+		}
+	});
+	
+}
+</script>
+<br /><br />
+<form id="form">
+
+<table>
+	<tr>
+		<td>Current Password</td>
+		<td><%= password_field_tag "current_password" %></td>
+	</tr>
+	<tr>
+		<td>New Password</td>
+		<td><%= password_field_tag "new_password" %></td>
+	</tr>
+	<tr>
+		<td>Repeat New Password</td>
+		<td><%= password_field_tag "new_password_repeat" %></td>
+	</tr>
+</table>
+
+<br />
+<div class="buttonwrapper" >
+	<a class="ovalbutton green" href="#" style="float:right;" onclick=" onSaveBtnClicked();return false;"><span><b>Save Changes</b></span></a> 
+</div> 
+</form>

@@ -53,6 +53,7 @@ body {
 	vertical-align:top;
 	margin-top:0px;
 	margin-right:0px;
+	float:right;
 }
 .table_row_item_box .buttons_section{
 	vertical-align:middle;

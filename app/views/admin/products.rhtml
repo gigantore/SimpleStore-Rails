@@ -191,7 +191,7 @@ function setupFormEventsDetection(productId){
 	
 	var imageuploader = $(getFormImageAreaId(productId)).imageuploader({
 		dndArea: getFormContentId(productId),
-		thumbnailUrl: product.thumbnail_url
+		imageUrl:  product.thumbnail_url
 	});
 	imageuploader.bind("imageuploader.imagechanged",function(){
 		displayFormChangedState(productId);
@@ -242,7 +242,7 @@ function displayFormUnchangedState(productId){
 }
 
 function productUpload(productId){ 
-	var serializedData = $(getFormId(productId)).serialize()
+	var serializedData = $(getFormId(productId)).serialize();
 	 
 	var fileTmpIds = $(getFormImageAreaId(productId)).imageuploader("getFileTmpId"); 
 	if(fileTmpIds.length !== 1){
@@ -264,7 +264,7 @@ function productUpload(productId){
 	
 	
 	
-	(new AjaxRequest({
+	$.ajaxWithMask({
 		url: '/admin/ax_product_submit',
 		type: 'POST',
 		data: serializedData,
@@ -279,7 +279,7 @@ function productUpload(productId){
 			convertProductId( productId , responseObject.data.product.product_id , responseObject.data.product ); 
 		},
 		loadMaskQuery: getFormLoadmaskAreaId(productId)
-	})).start();
+	});
 }
 function productDelete(productId , serverDeletionDefaultTrue){
 	var deleteDiv = function(){
@@ -296,7 +296,7 @@ function productDelete(productId , serverDeletionDefaultTrue){
 		deleteDiv();
 		
 	}else{
-		(new AjaxRequest({
+		$.ajaxWithMask({
 			url: '/admin/ax_product_delete',
 			type: 'POST',
 			data: { product_id: productId },
@@ -308,7 +308,7 @@ function productDelete(productId , serverDeletionDefaultTrue){
 				deleteDiv();
 			},
 			loadMaskQuery: getFormLoadmaskAreaId(productId)
-		})).start();
+		});
 	}
 }
 function productCreateNew(){
@@ -549,14 +549,14 @@ function getTableRow(product,styleCSS){
 	return template;
 }
 
-window.onActionViewReady = function(){ 
+$(document).ready(function(){ 
 	initGlobals(); 
 	insertTableRows();
 	forEachProductId(redoSelectCategoryOptions); 
 	//forEachProductId(renderCanvasWithInitialImage); 
 	forEachProductId(setupFormEventsDetection); 
 	window.onbeforeunload = window.globals.onBeforeUnload;
-};
+});
 
 
 
