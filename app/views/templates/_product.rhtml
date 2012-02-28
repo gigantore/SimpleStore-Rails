@@ -1,33 +1,49 @@
-<% 
-	 
+<%  
 =begin
-TEMPLATES (REQUIRED TO SUBSTITUTE):
 
-__product_id__
-__name__
-__description__
-__price__
-__is_enabled__
-__category_id__
-__thumbnail_url__ 
-__content_style_css__
-__canvas_height__
-__canvas_width__
+@param user_type  :user or :admin  , default :admin
 
-=end
-	
-	  
+
+
+TEMPLATES (REQUIRED TO SUBSTITUTE): 
+FOR ADMIN
+	__product_id__
+	__name__
+	__description__
+	__price__
+	__is_enabled__
+	__category_id__
+	__thumbnail_url__ 
+	__content_style_css__
+	__top_style_css__
+	__canvas_height__
+	__canvas_width__
+
+FOR CLIENT
+	__product_id__
+	__name__
+	__description__
+	__thumbnail_url__ 
+	__content_style_css__
+	__top_style_css__
+	__canvas_height__
+	__canvas_width__	
+
+=end 
+if !defined? user_type
+	user_type = :admin
+end
 %> 
 
 <!-- contains the content -->
-<form id='form-__product_id__'>
-<table class='product'>
+<form id='form-__product_id__' style='clear:none;float:none;__top_style_css__;' class='product <%=((user_type==:user)&&"user") || ""%>'>
+<table >
 <tr id='form-content-__product_id__'>
   
   <td> 
-	<div class='content ' style='margin:10px;__content_style_css__'>  
+	<div class='content  ' style='margin:10px;__content_style_css__'>  
 	  <input type='hidden' name="product_id" value=__product_id__ />
-	  <input id="form-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
+	  
 	  
 	  <!-- this won't be included in serialize() automatically -->
 	  <input id='input-file-btn-__product_id__' type="file" style="top:-1000px;left:-1000px;position:absolute;">
@@ -35,17 +51,28 @@ __canvas_width__
 		<div id="form-image-area-__product_id__" class="left_section"> 
 		</div>
 		<div class="right_section">
-			<input id="form-input-name-__product_id__" type="text" name="name" value="__name__" style="width:250px;font-weight:bold;font-size:20px" /><br />
-			<textarea id="form-input-description-__product_id__" name="description"  style="width:320px;height:130px;">__description__</textarea><br />
+			
+			
+<% if(user_type == :admin) %>
+			<input id="form-input-name-__product_id__" type="text" class="name" name="name" value="__name__" style="" /><br />
+			<textarea id="form-input-description-__product_id__" name="description" class="description" style="">__description__</textarea><br />
 			<br />
+			
+			<input id="form-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
 			Category: <select id="form-input-category-__product_id__" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
 				</select>
 			<br /><br />
 			<input id="form-input-is-enabled-__product_id__" type="checkbox" value=true name="is_enabled" /> Enabled
-			
 			<script language='javascript'>
 				$("#form-input-is-enabled-__product_id__").attr("checked",__is_enabled__);
-			</script>			
+			</script>
+			
+<% else %>
+			<div class="name">__name__</div>
+			<div class="description">__description__</div> 
+			
+<% end %>			
+					
 		</div>
 	   
 	  
@@ -53,6 +80,8 @@ __canvas_width__
 		
 	</div>
   </td>
+  
+<% if(user_type == :admin) %>  
   <td class="buttons_section">
 	<div class="buttonwrapper" >
 		<a id="save-btn-__product_id__" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
@@ -60,6 +89,8 @@ __canvas_width__
 		<a id="cancel-new-btn-__product_id__" class="ovalbutton orange" href="#" style="display:none"><span><b>Cancel New</b></span></a><br /><br /> 
 	</div> 
   </td>
+<% end %>
+
   
 </tr>
 </table>

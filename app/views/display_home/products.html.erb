@@ -1,0 +1,102 @@
+ <%
+ 	canvas_size = {
+		:width => 200,
+		:height => 200
+	} 
+ %>
+ <%= stylesheet_link_tag "templates/product.css" %>
+ 
+<script language="JavaScript">
+window.paginatorCallback = function(pageNum){ 
+	window.location = "/display_home/products?page_num=" + pageNum;
+};  
+
+window.globals = {
+	products: <%=raw @products_compact.to_json%>,
+	productIds: <%=raw (@products_compact.collect{|p| p[:product_id]}).to_json %>,
+	tableRowTemplate: "<%=escape_javascript render :partial => 'templates/product', :locals => {:user_type => :user}%>"
+};
+
+function insertProducts( ){
+	var index = 0;
+	var div = $("#products");
+	
+	var ll = window.globals.productIds.length; 
+	for(var i = 0 ; i< ll ; i++){
+		var pid = window.globals.productIds[i];
+		var product = window.globals.productsById[pid];
+		
+		var bgColorInHex = product.attr.color; 
+		var rHex = bgColorInHex.substring(1,3);
+		var rDec = parseInt(rHex,16);
+		var gHex = bgColorInHex.substring(3,5);
+		var gDec = parseInt(gHex,16);
+		var bHex = bgColorInHex.substring(5,7);
+		var bDec = parseInt(bHex,16);  
+		var color = rDec + "," + gDec + "," + bDec + ",0.6";
+		var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;-moz-border-radius: 15px;border-radius: 15px;";
+		var topStyleCSS = "float:" + (i%2==0?"left":"right") + " !important;";
+		var tr = compileProductTemplate(product,topStyleCSS,contentStyleCSS);
+		
+		div.append(tr);
+		
+		var imageAreaId = "#form-image-area-"+pid;
+		var turl = product.thumbnail_url;
+		if (turl == null || turl === ""){
+			turl = "/images/display_home/image_not_found.png";
+		}
+		$(imageAreaId).html("<img width=200 height=200 style='width:200px;height:200px' src='"+turl+"'></img>");
+		
+		if(i % 2 == 0){
+			div.append("<br /><br />");
+		}
+		
+	}; 
+}
+
+function compileProductTemplate(product,topStyleCSS,contentStyleCss){ 
+	var template = String(window.globals.tableRowTemplate);  // Copy!
+	for(var key in product){
+		var templateKey = "__" + key + "__";
+		var regEx = new RegExp(templateKey,"g");
+		template = template.replace(regEx,product[key]);
+	}
+	 
+	// Do other substitution
+	template = template.replace(/__content_style_css__/g,contentStyleCss);
+	template = template.replace(/__top_style_css__/g,topStyleCSS);
+	
+	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
+	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>"); 
+	return template;
+}
+$(document).ready(function(){
+	// assign productsById
+	var productsById = {};
+	var products = window.globals.products;
+	var ll = products.length;
+	for(var i = 0 ;i  < ll ; i++){
+		var product =  products[i];
+		productsById[product.product_id] = product;
+	}
+	window.globals.productsById = productsById;		
+	
+	// let's insert the tablerows
+	insertProducts();
+});
+
+</script>
+
+
+<%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> 
+<br />
+
+<div id="products">
+	</div>
+
+
+
+<br />
+<%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%>
+<br /> 
+

@@ -6,7 +6,6 @@
 		<%= stylesheet_link_tag "jquery/jquery-ui/ui-lightness/jquery-ui-1.8.17.custom.css" %>
 		<%= stylesheet_link_tag "jquery/apprise/apprise.min.css" %>
 		<%= stylesheet_link_tag "jquery/loadmask/jquery.loadmask.css" %>
-		<%= stylesheet_link_tag "jquery/fileupload/jquery.fileupload-ui.css" %> 
 		<%= stylesheet_link_tag "oval-button/oval-button.css" %>
 		<%= stylesheet_link_tag "centeredfocus/centeredfocus" %>
 		 
@@ -16,27 +15,20 @@
 		<script type="text/javascript" src="/javascripts/jquery/loadmask/jquery.loadmask.min.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery/apprise/apprise-1.5.min.js"></script>
 		<script type="text/javascript" src="/javascripts/ajaxwithmask/ajaxwithmask.js"></script>
-		<script type="text/javascript" src="/javascripts/imageuploader/FileUploaderRequest.js"></script>
-		<script type="text/javascript" src="/javascripts/imageuploader/imageuploader.js"></script>
 		<script type="text/javascript" src="/javascripts/centeredfocus/centeredfocus.js"></script>
 	 	<script type="text/javascript" src="/javascripts/statictabs/statictabs.js"></script>
 	 
-	 	<!-- Admin specific -->
-		<%= stylesheet_link_tag "display_admin/shared.css" %> 
-		 
+	 	<!-- Home specific -->
+		<%= stylesheet_link_tag "display_home/shared.css" %> 
 		 
 		<%= csrf_meta_tag %> 
 		
 		<script language="javascript"> 
-			$(document).ready(function(){
-				 
+			$(document).ready(function(){ 
 				var actionName = "<%=controller.action_name%>";
 				var tabNamesAndUrls = [
-					["Products","/display_admin/products"],
-					["Categories","/display_admin/categories"],
-					["Store Settings","/display_admin/store_settings"],
-					["About Page","/display_admin/about_page"],
-					["My Account","/display_admin/my_account"]
+					["Products","/display_home/products"], 
+					["About","/display_home/about"]
 				];
 				var selected = 0;
 				$.each(tabNamesAndUrls,function(index,nameAndUrl){
@@ -55,11 +47,11 @@
 			});
 		</script>
 	</head>
-	<body>   
-		<div id="maintab"> 
-		</div>
-			
- 
-	</body>
-	 
+	<body>    
+		<div id="maindiv">
+			<img src="<%=@store_front_image_url%>" />
+			<div id="maintab">  
+			</div>
+		</div> 
+	</body> 
 </html>

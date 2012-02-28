@@ -1,12 +1,12 @@
-<%
-	#index_base = (@page_num - 1) * @items_per_page;
+<% 
 	canvas_size = {
 		:width => 200,
 		:height => 200
 	} 
 %>
 
-<%= stylesheet_link_tag "display_admin/ss-admin-product.css" %>
+<%= stylesheet_link_tag "display_admin/products.css" %>
+<%= stylesheet_link_tag "templates/product.css" %>
 
 <script type="text/javascript">
 function onSelectCategoryChanged(selectDiv){
@@ -301,7 +301,7 @@ function forEachProductId(functionToCall){
 }
 
 function getTableRowItemBoxId(prependHashDefaultTrue){
-	var id = 'table_row_item_box';
+	var id = 'product_table';
 	return (prependHashDefaultTrue===false?id:"#"+id);
 }
 // You don't really want to use this unless you're submitting since the child of
@@ -454,7 +454,7 @@ $(document).ready(function(){
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> 
  
 <br /><br /> 
-<table id='table_row_item_box' class='table_row_item_box'  >
+<table id='product_table' class='product'  >
 </table> 
 <br /><br />
  

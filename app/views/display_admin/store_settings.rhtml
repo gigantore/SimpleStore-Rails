@@ -1,4 +1,4 @@
-<script language='JavaScript'>
+<script language="JavaScript">
 $(document).ready(function(){ 
 	// setup the images
 	$("#store_logo").imageuploader({
@@ -6,11 +6,12 @@ $(document).ready(function(){
 		imageUrl: "<%=@store_logo_url%>"
 	});
 	$("#store_front_image").imageuploader({
-		width: 600,
-		height: 400,
+		width: 650,
+		height: 200,
 		formInputName: "store_front_image_file_tmp_id",
 		imageUrl: "<%=@store_front_image_url%>"
 	});	
+	
 	
 	// setup events
 	$("#store_logo").bind("imageuploader.imagechanged",function(){
@@ -19,6 +20,7 @@ $(document).ready(function(){
 	$("#store_front_image").bind("imageuploader.imagechanged",function(){
 		window.globals.isValueChanged=true;
 	});
+	
 	$("input").change(function(){
 		window.globals.isValueChanged=true;
 	})
@@ -61,7 +63,6 @@ window.globals = {
 	}
 };
 window.onbeforeunload = window.globals.onBeforeUnload;
-
 </script>
 
 <br /><br />
@@ -85,7 +86,7 @@ Store Logo<br />
 <br /><br />
 
 <hr />
-Store Front Image<br /> 
+Store Front Image <br /> 
 <div id='store_front_image'>
 </div>
 <br /><br />

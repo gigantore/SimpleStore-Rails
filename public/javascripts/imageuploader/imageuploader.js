@@ -14,16 +14,27 @@
 
 
 (function( $ ){  
+	$.fn.imageuploader = function( method ) {   
+		if ( methods[method] ) {
+			return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+		} else if ( typeof method === 'object' || ! method ) { // this is config then
+			return methods.init.apply( this , [method]);
+		} else {
+			$.error( 'Method ' +  method + ' does not exist on jQuery.imageUploader' );
+		}    			
+	}; 
+		
 	var methods = {
 		init : function( options_ ) {  
-			var initEach = function(){
+			
+			var initEach = function(){ 
 				var options = $.extend({ 
 					dataUrl: "",
 					height: 200,
 					width: 200, 
 					formInputName: 'file_tmp_id',
 					imageUrl: "",  
-					defaultImageUrl: "/images/admin/image-not-found.png",
+					defaultImageUrl: "/images/display_admin/image-not-found.png",
 					uniqueId: __imageUploaderUniqueId__++,
 					dndArea: null
 				},options_);
@@ -90,8 +101,8 @@
 				var imageUrl = (options.imageUrl!=="" && options.imageUrl!=null)?options.imageUrl:options.defaultImageUrl;
 				methods.renderCanvasFromURL_.apply(this,[imageUrl]);
 				 
-			};
-			return this.each(function(index,div){ 
+			}; 
+			return this.each(function(index,div){  
 				initEach.apply($(this));
 			});
 		},
@@ -184,15 +195,7 @@
 			img.src = url;	
 		}
 	};		 
-	$.fn.imageuploader = function( method ) {   
-		if ( methods[method] ) {
-			return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
-		} else if ( typeof method === 'object' || ! method ) { // this is config then
-			return methods.init.apply( this , [method]);
-		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.imageUploader' );
-		}    			
-	}; 
+
 })( jQuery );
 
 // Globals helpers

@@ -1,0 +1,14 @@
+
+#maindiv {
+	width: 1250px;
+	margin-left: auto;
+	margin-right: auto;
+	font-size: .8em !important;
+}
+
+#maindiv img {
+	width: 1250px; 
+	height: 400px;
+}
+ 
+

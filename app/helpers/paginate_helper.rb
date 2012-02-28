@@ -1,4 +1,4 @@
-module SsPaginatorHelper
+module PaginateHelper
 
   ##
   # @key  items_per_page The number of items per page  
@@ -14,7 +14,7 @@ module SsPaginatorHelper
     display_borders =  options[:display_borders] if !options[:display_borders].nil?
      
   
-    return render(:partial => 'ss_paginator/show', 
+    return render(:partial => 'paginate_helper/paginate', 
       :locals => {:items_per_page => options[:items_per_page], :display_borders => display_borders, 
         :page_num=>options[:page_num], :total_items=>options[:total_items],
         :js_callback => options[:js_callback]  })

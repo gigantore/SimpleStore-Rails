@@ -1,3 +1,4 @@
+require 'RMagick'
 class StoreSetting < ActiveRecord::Base
   set_primary_key :key
 
@@ -10,6 +11,10 @@ class StoreSetting < ActiveRecord::Base
       fh.write(content)
       fh.close
       
+      img = Magick::Image.read(path).first
+      thumb = img.resize_to_fit(850, 200)
+      thumb.write(path)
+    
     else
       raise "Unknown image_type=#{image_type}"
     end     
@@ -24,7 +29,7 @@ class StoreSetting < ActiveRecord::Base
   # See save_image for image_type values
   # if system_path == false, it will return nil if it does not exist
   def self.get_image_path(image_type , system_path=true)
-    path = "/images/store"
+    path = "/images/store_setting"
     sys_path = RAILS_ROOT + "/public" + path
     FileUtils.mkdir_p(sys_path) if !FileTest.exist? sys_path
     

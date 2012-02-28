@@ -8,12 +8,12 @@ SimpleStore::Application.routes.draw do
   resources :store_setting 
   resources :user_controller
   
-  get "home/index"
-  get "home/products"
-  get "home/about"
-  get "home/show_product"
-  get "home/brands"
-  get "home/categories"
+  get "display_home/index"
+  get "display_home/products"
+  get "display_home/about"
+  get "display_home/show_product"
+  get "display_home/brands"
+  get "display_home/categories"
   
   
   match 'display_admin' => 'display_admin#index'
