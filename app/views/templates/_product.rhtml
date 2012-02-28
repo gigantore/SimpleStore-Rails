@@ -3,9 +3,11 @@
 
 @param user_type  :user or :admin  , default :admin
 
+These 2 files are NOT included you'll have to include manually: 
+The CSS is located in /public/stylesheets/templates/product.css
+The JS is located in /public/javascripts/templates/product.js
 
-
-TEMPLATES (REQUIRED TO SUBSTITUTE): 
+TEMPLATES (REQUIRED TO SUBSTITUTE via js either manually or use product.js): 
 FOR ADMIN
 	__product_id__
 	__name__
@@ -14,8 +16,6 @@ FOR ADMIN
 	__is_enabled__
 	__category_id__
 	__thumbnail_url__ 
-	__content_style_css__
-	__top_style_css__
 	__canvas_height__
 	__canvas_width__
 
@@ -24,74 +24,79 @@ FOR CLIENT
 	__name__
 	__description__
 	__thumbnail_url__ 
-	__content_style_css__
-	__top_style_css__
 	__canvas_height__
 	__canvas_width__	
+
+FOR BOTH OPTIONAL:
+	__top_level_cls__
+	__top_level_style__
+	__content_level_cls__
+	__content_level_style__
 
 =end 
 if !defined? user_type
 	user_type = :admin
 end
-%> 
+%>  
+
 
 <!-- contains the content -->
-<form id='form-__product_id__' style='clear:none;float:none;__top_style_css__;' class='product <%=((user_type==:user)&&"user") || ""%>'>
-<table >
-<tr id='form-content-__product_id__'>
-  
-  <td> 
-	<div class='content  ' style='margin:10px;__content_style_css__'>  
-	  <input type='hidden' name="product_id" value=__product_id__ />
-	  
-	  
-	  <!-- this won't be included in serialize() automatically -->
-	  <input id='input-file-btn-__product_id__' type="file" style="top:-1000px;left:-1000px;position:absolute;">
-	
-		<div id="form-image-area-__product_id__" class="left_section"> 
-		</div>
-		<div class="right_section">
-			
-			
-<% if(user_type == :admin) %>
-			<input id="form-input-name-__product_id__" type="text" class="name" name="name" value="__name__" style="" /><br />
-			<textarea id="form-input-description-__product_id__" name="description" class="description" style="">__description__</textarea><br />
-			<br />
-			
-			<input id="form-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
-			Category: <select id="form-input-category-__product_id__" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
-				</select>
-			<br /><br />
-			<input id="form-input-is-enabled-__product_id__" type="checkbox" value=true name="is_enabled" /> Enabled
-			<script language='javascript'>
-				$("#form-input-is-enabled-__product_id__").attr("checked",__is_enabled__);
-			</script>
-			
-<% else %>
-			<div class="name">__name__</div>
-			<div class="description">__description__</div> 
-			
-<% end %>			
-					
-		</div>
-	   
-	  
-
+<div id="product-__product_id__" class='product <%=((user_type==:user)&&"user") || ""%> __top_level_cls__' style='__top_level_style__'>
+	<form id='product-form-__product_id__' >
+	<table >
+	<tr> 
+	  <td> 
+		<div class='content' class='__content_level_style__' style='__content_level_style__'>  
+		  <input type='hidden' name="product_id" value=__product_id__ />
+		  
+		  
+		  <!-- this won't be included in serialize() automatically -->
+		  <input id='product-input-file-btn-__product_id__' type="file" style="top:-100000px;left:-100000px;position:absolute;">
 		
-	</div>
-  </td>
-  
-<% if(user_type == :admin) %>  
-  <td class="buttons_section">
-	<div class="buttonwrapper" >
-		<a id="save-btn-__product_id__" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
-		<a id="delete-btn-__product_id__" class="ovalbutton red" href="#" style="display:block"><span><b>Delete</b></span></a><br /><br /> 
-		<a id="cancel-new-btn-__product_id__" class="ovalbutton orange" href="#" style="display:none"><span><b>Cancel New</b></span></a><br /><br /> 
-	</div> 
-  </td>
-<% end %>
-
-  
-</tr>
-</table>
-</form>
+			<div id="product-image-area-__product_id__" class="left_section"> 
+			</div>
+			<div class="right_section">
+				
+				
+<% if(user_type == :admin) %>
+				<input id="product-input-name-__product_id__" type="text" class="name" name="name" value="__name__" style="" /><br />
+				<textarea id="product-input-description-__product_id__" name="description" class="description" style="">__description__</textarea><br />
+				<br />
+				
+				<input id="product-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
+				Category: <select id="product-input-category-__product_id__"  name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
+					</select>
+				<br /><br />
+				<input id="product-input-is-enabled-__product_id__" type="checkbox" value=true name="is_enabled" /> Enabled
+				<script language='javascript'>
+					$("#product-input-is-enabled-__product_id__").attr("checked",__is_enabled__);
+				</script>
+				
+<% else %>
+				<div class="name">__name__</div>
+				<div class="description">__description__</div> 
+<% end %>			
+						
+			</div>
+		   
+		  
+	
+			
+		</div>
+	  </td>
+	  
+	<% if(user_type == :admin) %>  
+	  <td class="buttons_section">
+		<div class="buttonwrapper" >
+			<a id="product-save-btn-__product_id__" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
+			<a id="product-delete-btn-__product_id__" class="ovalbutton red" href="#" style="display:block"><span><b>Delete</b></span></a><br /><br /> 
+			<a id="product-cancel-new-btn-__product_id__" class="ovalbutton orange" href="#" style="display:none"><span><b>Cancel New</b></span></a><br /><br /> 
+		</div> 
+	  </td>
+	<% end %>
+	
+	  
+	</tr>
+	</table>
+	</form>
+</div>

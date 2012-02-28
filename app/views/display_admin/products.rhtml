@@ -5,8 +5,9 @@
 	} 
 %>
 
-<%= stylesheet_link_tag "display_admin/products.css" %>
-<%= stylesheet_link_tag "templates/product.css" %>
+<%= stylesheet_link_tag "display_admin/products.css" %> 
+<%= stylesheet_link_tag "templates/product" %>
+<%= javascript_include_tag "templates/product" %>
 
 <script type="text/javascript">
 function onSelectCategoryChanged(selectDiv){
@@ -45,7 +46,9 @@ function onSelectCategoryChanged(selectDiv){
 	}
 } 
 function redoSelectCategoryOptions(productId){ 
-	var selectDiv = $(getInputCategoryId(productId));
+	var productTmpl = new ProductTmpl(productId);
+	
+	var selectDiv = $(productTmpl.ids.inputCategoryId);
 	selectDiv.empty();
 	 
 	var cats = window.globals.categories;
@@ -68,49 +71,52 @@ function setupFormEventsDetection(productId){
 	var product = window.globals.productsById[productId];
 	if(!product) apprise("Error happened. Product must not be null");
 	
-	$(getInputNameId(productId)).keyup(function(e){
+	var productTmpl = new ProductTmpl(productId);
+	var ids = productTmpl.ids;
+	
+	$(ids.inputNameId).keyup(function(e){
 		var name = "";
 		if(product.name) name = product.name;
 		if($(this).val() != name) displayFormChangedState(productId); 
 	}); 
 	
-	$(getInputDescriptionId(productId)).keyup(function(e){
+	$(ids.inputDescriptionId).keyup(function(e){
 		var description = "";
 		if(product.description) description = product.description;
 		if($(this).val() != description) displayFormChangedState(productId);
 	});
 	
-	$(getInputPriceId(productId)).keyup(function(e){
+	$(ids.inputPriceId).keyup(function(e){
 		var price = "";
 		if(product.price) price = product.price;
 		if($(this).val() != price) displayFormChangedState(productId);
 	});
 	
-	$(getInputCategoryId(productId))[0].addEventListener("change",function(e){
+	$(ids.inputCategoryId)[0].addEventListener("change",function(e){
 		var catId = "";
 		if(product.category) catId = product.category.category_id; 
 		if($(this).val() != (catId)) displayFormChangedState(productId);
 	});
 	
-	$(getInputIsEnabledId(productId))[0].addEventListener("change",function(e){
+	$(ids.inputIsEnabledId)[0].addEventListener("change",function(e){
 		var isEnabled = true;
 		if(typeof(product.is_enabled) != "undefined") isEnabled = product.is_enabled;
 		if( $(this).is(':checked') !=  isEnabled) displayFormChangedState(productId);
 	});
 	
-	$(getSaveBtnId(productId)).click(function(e){
+	$(ids.saveBtnId).click(function(e){
 		e.preventDefault();
 		e.stopPropagation();
 		productUpload(productId); 
 	});
-	$(getDeleteBtnId(productId)).click(function(e){
+	$(ids.deleteBtnId).click(function(e){
 		e.preventDefault();
 		e.stopPropagation();
 		apprise("Once you delete it can't be brought back",{verify:true},function(r){
 			if(r){ productDelete(productId); }
 		});
 	});		 
-	$(getCancelNewBtnId(productId)).click(function(e){
+	$(ids.cancelNewBtnId).click(function(e){
 		// Cancel is only when it's a temp
 		if(isNaN(productId)===false){
 			apprise("Error... somehow the ID is all numbers which is a real product instead of tmp");
@@ -120,8 +126,8 @@ function setupFormEventsDetection(productId){
 		productDelete(productId,false);
 	});
 	
-	var imageuploader = $(getFormImageAreaId(productId)).imageuploader({
-		dndArea: getFormContentId(productId),
+	var imageuploader = $(ids.imageAreaId).imageuploader({
+		dndArea: ids.topContainerId,
 		imageUrl:  product.thumbnail_url
 	});
 	imageuploader.bind("imageuploader.imagechanged",function(){
@@ -131,29 +137,38 @@ function setupFormEventsDetection(productId){
 }
 
 function displayFormChangedState(productId){
-	$(getSaveBtnId(productId)).show();
-	$(getDeleteBtnId(productId)).hide(); 
-	$(getFormContentId(productId)).addClass("modified");
+	var productTmpl = new ProductTmpl(productId);
+	var ids = productTmpl.ids;
+	
+	$(ids.saveBtnId).show();
+	$(ids.deleteBtnId).hide(); 
+	$(ids.topContainerId).addClass("modified");
 	setProductIdBeingEdited(productId,true);
 }
 function displayFormUnchangedState(productId){
-	$(getSaveBtnId(productId)).hide();
-	$(getDeleteBtnId(productId)).show();	
-	$(getFormContentId(productId)).removeClass("modified");
-	$(getCancelNewBtnId(productId)).hide(); // always hide
+	var productTmpl = new ProductTmpl(productId);
+	var ids = productTmpl.ids;
+
+	$(ids.saveBtnId).hide();
+	$(ids.deleteBtnId).show();	
+	$(ids.topContainerId).removeClass("modified");
+	$(ids.cancelNewBtnId).hide(); // always hide
 	setProductIdBeingEdited(productId,false);
 }
 
 function productUpload(productId){ 
-	var serializedData = $(getFormId(productId)).serialize();
+	var productTmpl = new ProductTmpl(productId);
+	var ids = productTmpl.ids;
+
+	var serializedData = $(ids.formId).serialize();
 	 
-	var fileTmpIds = $(getFormImageAreaId(productId)).imageuploader("getFileTmpId"); 
+	var fileTmpIds = $(ids.imageAreaId).imageuploader("getFileTmpId"); 
 	if(fileTmpIds.length !== 1){
 		apprise("Internal Error: returned ids len is != 1 ");
 	}
 	var fileTmpId = parseInt(fileTmpIds[0],10);
 	if(fileTmpId === -9){ 
-		$(getFormLoadmaskAreaId(productId)).mask("Still uploading image please wait...");
+		$(ids.topContainerId).mask("Still uploading image please wait...");
 		setTimeout(function(){
 			productUpload(productId);
 		},1000);
@@ -182,18 +197,21 @@ function productUpload(productId){
 				return;
 			}
 			
-			$(getInputFileTmpHolderId(productId)).val("");  // empty it out
+			$(ids.inputFileTmpHolderId).val("");  // empty it out
 			displayFormUnchangedState(productId);
 			convertProductId( productId , responseObject.data.product.product_id , responseObject.data.product ); 
 		},
-		loadMaskQuery: getFormLoadmaskAreaId(productId)
+		loadMaskQuery: ids.topContainerId
 	});
 }
 function productDelete(productId , serverDeletionDefaultTrue){
+	var productTmpl = new ProductTmpl(productId);
+	var ids = productTmpl.ids;
+
 	var deleteDiv = function(){
 		window.globals.productIds = window.globals.productIds.splice(window.globals.productIds.indexOf(productId));
 		delete window.globals.productsById[productId];
-		$(getFormContentId(productId)).fadeOut(1000,function(){
+		$(ids.topContainerId).fadeOut(1000,function(){
 			$(this).remove();
 		});	
 		setProductIdBeingEdited(productId,false);
@@ -214,7 +232,7 @@ function productDelete(productId , serverDeletionDefaultTrue){
 				} 
 				deleteDiv();
 			},
-			loadMaskQuery: getFormLoadmaskAreaId(productId)
+			loadMaskQuery: ids.topContainerId
 		});
 	}
 }
@@ -225,7 +243,7 @@ function productCreateNew(){
 	var tmpProductId = "tmp_" + (new Date()).getTime();
 	var colorCode = getRandomColorCode();
 	window.globals.productIds.splice(0,0,tmpProductId);
-	window.globals.productsById[tmpProductId] ={
+	var productData ={
 		product_id: tmpProductId,
 		is_enabled: true,
 		category_id: "",
@@ -237,33 +255,36 @@ function productCreateNew(){
 			color: colorCode
 		}
 	};
+	window.globals.productsById[tmpProductId] = productData;
+	 
+	productData['content_level_style'] = "background-color:"+colorCode+";";
 	
-	var bgColor = "background-color:"+colorCode+";";
-	$(getTableRowItemBoxId()).prepend(getTableRow(window.globals.productsById[tmpProductId],bgColor));
+	$(getProductCollectionsDivId()).prepend(
+		compileProductTemplate(tmpProductId , productData)		
+	);
 	
 	redoSelectCategoryOptions(tmpProductId); 
 	displayFormChangedState(tmpProductId);
 	setupFormEventsDetection(tmpProductId); 
 	
 	// This is the only place where it got shown
-	$(getCancelNewBtnId(tmpProductId)).show()
+	var productTmpl = new ProductTmpl(tmpProductId);
+	$(productTmpl.ids.cancelNewBtnId).show()
 }
 
 function convertProductId(oldProductId , newProductId , newProductData){
+ 
 	// deal with key
 	var indexInArray = window.globals.productIds.indexOf(oldProductId);
 	window.globals.productIds[indexInArray] = newProductId;
 	
 	// deal with value
 	window.globals.productsById[newProductId] = newProductData;
-	
-	var oldIdSuffix = "-" + oldProductId;
-	var newIdSuffix = "-" + newProductId;
-	$('[id$="'+oldIdSuffix+'"]').each(function(index,div){
-		var oldId = $(div).attr("id");
-		var newId = oldId.replace(oldIdSuffix,newIdSuffix);
-		$(div).attr("id",newId);
-	});	
+
+
+	var productTmpl = new ProductTmpl(oldProductId);
+	productTmpl.migrateExistingCompiledTemplateTo(newProductId);
+
 }
 
 //////////////////////////// VARIABLES, IDS, GENERAL GETTERS/ACCESSORS
@@ -272,7 +293,10 @@ function getRandomColorCode(){
 	var l = cc.length;
 	return cc[Math.floor(Math.random()*l)];
 }
-
+function getProductCollectionsDivId(prependHashDefaultTrue){
+	var id = 'product_collections';
+	return (prependHashDefaultTrue===false?id:"#"+id);
+}
 function setProductIdBeingEdited(productId , isBeingEdited){ 
 	var index = window.globals.productIdsBeingEdited.indexOf(productId); 
 	if(isBeingEdited){
@@ -300,70 +324,6 @@ function forEachProductId(functionToCall){
 	}
 }
 
-function getTableRowItemBoxId(prependHashDefaultTrue){
-	var id = 'product_table';
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-// You don't really want to use this unless you're submitting since the child of
-//  this form is unpredictable in some browsers due to their auto-correct mechanism
-function getFormId(productId , prependHashDefaultTrue){
-	var id = "form-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-
-// This is the "tr" , pretty much the whole row.
-function getFormContentId(productId , prependHashDefaultTrue){
-	var id = "form-content-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getFormLoadmaskAreaId(productId){
-	return "tr"+getFormContentId(productId)+" td";
-}
-function getFormImageAreaId(productId , prependHashDefaultTrue){
-	var id = "form-image-area-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-} 
-function getSaveBtnId(productId, prependHashDefaultTrue){
-	var id = "save-btn-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);	
-}
-function getDeleteBtnId(productId, prependHashDefaultTrue){
-	var id = "delete-btn-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);	
-}
-function getCancelNewBtnId(productId, prependHashDefaultTrue){
-	var id = "cancel-new-btn-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);	
-}
-function getFileInputBtnId(productId , prependHashDefaultTrue){
-	var id = "input-file-btn-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-
-function getInputNameId(productId , prependHashDefaultTrue){
-	var id = "form-input-name-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getInputDescriptionId(productId , prependHashDefaultTrue){
-	var id = "form-input-description-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getInputPriceId(productId , prependHashDefaultTrue){
-	var id = "form-input-price-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getInputCategoryId(productId , prependHashDefaultTrue){
-	var id = "form-input-category-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getInputIsEnabledId(productId , prependHashDefaultTrue){
-	var id = "form-input-is-enabled-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getInputFileTmpHolderId(productId , prependHashDefaultTrue){
-	var id = "form-input-file-tmp-id-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-} 
 
 
 
@@ -409,40 +369,38 @@ function initGlobals(){
 }
 
 function insertTableRows( ){
+
 	var index = 0;
-	var table = $(getTableRowItemBoxId());
+	var collectionsDiv = $(getProductCollectionsDivId());
 	
 	var ll = window.globals.productIds.length; 
 	for(var i = 0 ; i< ll ; i++){
 		var pid = window.globals.productIds[i];
-		var product = window.globals.productsById[pid];
-		var styleCSS = "background-color:"+product.attr.color+";";
-		var tr = getTableRow(product,styleCSS);
-		table.append(tr);
-	};
-}
-
-function getTableRow(product,styleCSS){ 
-	var template = String(window.globals.tableRowTemplate);  // Copy!
-	for(var key in product){
-		var templateKey = "__" + key + "__";
-		var regEx = new RegExp(templateKey,"g");
-		template = template.replace(regEx,product[key]);
+		var product = window.globals.productsById[pid]; 
+		collectionsDiv.append(compileProductTemplate(pid,product));
 	}
-	 
-	// Do other substitution
-	template = template.replace(/__content_style_css__/g,styleCSS);
-	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
-	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>"); 
-	return template;
+} 
+
+function compileProductTemplate(pid, product){
+	var productTmpl = new ProductTmpl(pid); 
+	var compiledStr = productTmpl.compile(window.globals.tableRowTemplate , 
+		$.extend(product,{
+			content_level_style: "background-color:"+product.attr.color+";",
+			canvas_height: <%=canvas_size[:height]%>,
+			canvas_width: <%=canvas_size[:width]%>
+		})
+	); 
+	return compiledStr;
 }
 
 $(document).ready(function(){ 
+
 	initGlobals(); 
 	insertTableRows();
 	forEachProductId(redoSelectCategoryOptions);   
 	forEachProductId(setupFormEventsDetection); 
 	window.onbeforeunload = window.globals.onBeforeUnload;
+	
 });
 
 
@@ -454,8 +412,8 @@ $(document).ready(function(){
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> 
  
 <br /><br /> 
-<table id='product_table' class='product'  >
-</table> 
+<div id='product_collections' >
+</div> 
 <br /><br />
  
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,   :js_callback => 'window.paginatorCallback'%> 

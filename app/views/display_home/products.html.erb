@@ -3,9 +3,12 @@
 		:width => 200,
 		:height => 200
 	} 
- %>
- <%= stylesheet_link_tag "templates/product.css" %>
- 
+ %> 
+<%= stylesheet_link_tag "display_home/products" %>
+<%= stylesheet_link_tag "templates/product" %>
+<%= javascript_include_tag "templates/product" %>
+
+
 <script language="JavaScript">
 window.paginatorCallback = function(pageNum){ 
 	window.location = "/display_home/products?page_num=" + pageNum;
@@ -19,7 +22,7 @@ window.globals = {
 
 function insertProducts( ){
 	var index = 0;
-	var div = $("#products");
+	var productsCollection = $("#products-collection");
 	
 	var ll = window.globals.productIds.length; 
 	for(var i = 0 ; i< ll ; i++){
@@ -35,41 +38,39 @@ function insertProducts( ){
 		var bDec = parseInt(bHex,16);  
 		var color = rDec + "," + gDec + "," + bDec + ",0.6";
 		var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;-moz-border-radius: 15px;border-radius: 15px;";
-		var topStyleCSS = "float:" + (i%2==0?"left":"right") + " !important;";
-		var tr = compileProductTemplate(product,topStyleCSS,contentStyleCSS);
+		var topStyleCSS = "width:500px;float:left;clear:none;";
+		if(i%2===0){
+			
+		}else{
+			topStyleCSS += "margin-left:50px;"
+		} 
 		
-		div.append(tr);
+		///// COMPILE
+		var productTmpl = new ProductTmpl(product.product_id);
+		var str = productTmpl.compile(window.globals.tableRowTemplate,
+			$.extend(product,{
+				canvas_width: <%=canvas_size[:width]%>,
+				canvas_height: <%=canvas_size[:height]%>,
+				content_level_style: contentStyleCSS,
+				top_level_style: topStyleCSS
+			})	
+		);  
+		productsCollection.append(str);
 		
-		var imageAreaId = "#form-image-area-"+pid;
+		///// MODIFY IMAGE AREA 
 		var turl = product.thumbnail_url;
 		if (turl == null || turl === ""){
 			turl = "/images/display_home/image_not_found.png";
 		}
-		$(imageAreaId).html("<img width=200 height=200 style='width:200px;height:200px' src='"+turl+"'></img>");
+		$(productTmpl.ids.imageAreaId).html("<img width=200 height=200 style='width:200px;height:200px' src='"+turl+"'></img>");
 		
-		if(i % 2 == 0){
-			div.append("<br /><br />");
-		}
+		//if(i % 2 == 0){
+		//	div.append("<br /><br />");
+		//}
 		
 	}; 
 }
-
-function compileProductTemplate(product,topStyleCSS,contentStyleCss){ 
-	var template = String(window.globals.tableRowTemplate);  // Copy!
-	for(var key in product){
-		var templateKey = "__" + key + "__";
-		var regEx = new RegExp(templateKey,"g");
-		template = template.replace(regEx,product[key]);
-	}
-	 
-	// Do other substitution
-	template = template.replace(/__content_style_css__/g,contentStyleCss);
-	template = template.replace(/__top_style_css__/g,topStyleCSS);
-	
-	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
-	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>"); 
-	return template;
-}
+ 
 $(document).ready(function(){
 	// assign productsById
 	var productsById = {};
@@ -91,7 +92,7 @@ $(document).ready(function(){
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> 
 <br />
 
-<div id="products">
+<div id="products-collection">
 	</div>
 
 
