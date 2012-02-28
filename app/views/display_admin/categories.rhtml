@@ -1,16 +1,14 @@
-<%= stylesheet_link_tag "admin/ss-admin-category.css" %> 
+<%= stylesheet_link_tag "display_admin/ss-admin-category.css" %> 
 <script language="JavaScript"> 
 function onEdit(categoryId){
 	var data = getCategoryData(categoryId);
 	apprise("Please input new category name",{input:true,value:data.name},function(newName){
 		if(newName){
-			formSubmit("edit",categoryId,newName);
+			formSubmit("/category/"+categoryId,"PUT","name="+newName);
 		}
 	});
 }
-function onJoin(categoryId){
-	
-	
+function onJoin(categoryId){ 
 	var select = $("#joinPromptDivSelect");
 	select.empty();
 	var ll = window.globals.categories.length;
@@ -26,23 +24,33 @@ function onJoin(categoryId){
 	}
 	select.append(options);
 	
-	// finally...
-	$("#category_id").val(categoryId);
+	// finally...  
+	window.globals.source_category_id_to_join = categoryId;
 	$("#joinPromptDiv").centeredfocus("show");
 }
 function onDelete(categoryId){
 	apprise("Products in this category going to have NO category",{confirm:true},function(r){
-		if(r){
-			formSubmit("delete",categoryId,"");
+		if(r){ 
+			formSubmit("/category/"+categoryId,"DELETE","");
 		}
 	});
 }
 
-function formSubmit(callType,categoryId,value){
-	$("#call_type").val(callType);
-	$("#category_id").val(categoryId);
-	$("#value").val(value);
-	$("#form").submit();
+function formSubmit(url,calltype,data){
+	$.ajaxWithMask({
+		type:calltype,
+		url:url,
+		data:data,
+		dataType: "json",
+		success:function(responseObj, textStatus, jqXHR){
+			if(responseObj.success!==1){
+				apprise("Something went wrong="+textStatus);
+				return;
+			}
+			window.location.reload(true);
+		},
+		loadMaskQuery:"body"
+	});
 }
 
 function getCategoryData(categoryId){
@@ -58,7 +66,7 @@ function getCategoryData(categoryId){
 }
 
 window.globals = {
-	categories: <%=raw @categories.to_json%>
+	categories: <%=raw @categories_compact.to_json%> 
 };
 
 $(document).ready(function(){
@@ -66,10 +74,9 @@ $(document).ready(function(){
 		saveText: "Join"
 	});
 	$("#joinPromptDiv").bind("centeredfocus.save",function(){
-		$("#call_type").val("join");
-		$("#value").val($("#joinPromptDivSelect").val());
 		
-		$("#form").submit();
+		var joinTo = $("#joinPromptDivSelect").val();
+		formSubmit("/category/"+window.globals.source_category_id_to_join,"PUT","join_to="+joinTo);
 	})
 })
 
@@ -81,13 +88,7 @@ $(document).ready(function(){
 	<select id="joinPromptDivSelect">
 	</select>
 </div>
-
-<form id="form" method="post" action="/admin/categories">
-	<input type="hidden" id="call_type" name="call_type" value="" />
-	<input type="hidden" id="category_id" name="category_id" value="" />
-	<input type="hidden" id="value" name="value" value="" />
-</form>
-
+ 
 <br /><br />
 All Categories:
 <br /><br />
@@ -96,10 +97,10 @@ All Categories:
  
 	
 <table>
-<% @categories.each do |category| %>
+<% @categories_compact.each do |category| %>
 	<tr>
 		<td style="width:200px;"><%=category[:name]%></td>
-		<td>[<%=category[:product_count]%> products]&nbsp;&nbsp;&nbsp;</td>
+		<td>[<%=@categories_product_counts[category[:category_id]]%> products]&nbsp;&nbsp;&nbsp;</td>
 		<td><a href="#" onclick="onEdit(<%=category[:category_id]%>);return false;">Edit</a></td>
 		<td><a href="#" onclick="onJoin(<%=category[:category_id]%>);return false;">Join</a></td>
 		<td><a href="#" onclick="onDelete(<%=category[:category_id]%>);return false;">Delete</a></td>

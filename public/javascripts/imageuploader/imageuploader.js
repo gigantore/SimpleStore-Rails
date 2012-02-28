@@ -22,8 +22,7 @@
 					height: 200,
 					width: 200, 
 					formInputName: 'file_tmp_id',
-					imageUrl: "", 
-					fileDeleteUrl:"/admin/ax_file_delete",
+					imageUrl: "",  
 					defaultImageUrl: "/images/admin/image-not-found.png",
 					uniqueId: __imageUploaderUniqueId__++,
 					dndArea: null
@@ -63,7 +62,7 @@
 				
 					
 				$(this.data("removeBtnId")).click($.proxy(function(){
-					// remove the image back to default 
+					// remove the image back to default  
 					methods.renderCanvasFromURL_.apply(this, [options.defaultImageUrl]);
 					$(this.data("fileTmpDivId")).val("-1"); //mark deletion
 					this.trigger('imageuploader.imagechanged');
@@ -130,10 +129,9 @@
 			
 			var fileTempId = $(this.data("fileTmpDivId")).val();
 			if(fileTempId){ 
-				$.ajax({
-					url: options.fileDeleteUrl,
-					type: "POST",
-					data: { file_tmp_id:fileTempId }
+				$.ajax({		
+					type: 'DELETE',
+					url: "/file_tmp/" + fileTempId
 				});
 				
 			} 

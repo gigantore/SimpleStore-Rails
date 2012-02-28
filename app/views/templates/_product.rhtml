@@ -20,11 +20,12 @@ __canvas_width__
 %> 
 
 <!-- contains the content -->
-
+<form id='form-__product_id__'>
+<table class='product'>
 <tr id='form-content-__product_id__'>
-  <form id='form-__product_id__'>
+  
   <td> 
-	<div class='table_row_item_box_content ' style='margin:10px;__content_style_css__'>  
+	<div class='content ' style='margin:10px;__content_style_css__'>  
 	  <input type='hidden' name="product_id" value=__product_id__ />
 	  <input id="form-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
 	  
@@ -59,5 +60,7 @@ __canvas_width__
 		<a id="cancel-new-btn-__product_id__" class="ovalbutton orange" href="#" style="display:none"><span><b>Cancel New</b></span></a><br /><br /> 
 	</div> 
   </td>
-  </form>
+  
 </tr>
+</table>
+</form>

@@ -33,9 +33,23 @@ function onSaveBtnClicked(){
 		setTimeout(onSaveBtnClicked,1000);
 		return;
 	}
-		
-	window.globals.isValueChanged = false;
-	document.getElementById('settings_form').submit(); 
+	
+	$.ajaxWithMask({
+		url:"/store_setting",
+		type:"POST",
+		data: $("#settings_form").serialize(),
+		dataType:"json",
+		success:function(responseObj, textStatus, jqXHR){
+			if(responseObj.success!==1){
+				apprise("Error happened="+textStatus);
+				return;
+			}
+			window.globals.isValueChanged = false;
+			window.location.reload(true);
+		},
+		loadMaskQuery:"body"
+	});
+		 
 }
 
 window.globals = {

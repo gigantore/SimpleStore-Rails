@@ -6,7 +6,7 @@
 	} 
 %>
 
-<%= stylesheet_link_tag "admin/ss-admin-product.css" %>
+<%= stylesheet_link_tag "display_admin/ss-admin-product.css" %>
 
 <script type="text/javascript">
 function onSelectCategoryChanged(selectDiv){
@@ -152,8 +152,7 @@ function productUpload(productId){
 		apprise("Internal Error: returned ids len is != 1 ");
 	}
 	var fileTmpId = parseInt(fileTmpIds[0],10);
-	if(fileTmpId === -9){
-		// TODO: block here and wait until this done before proceeding
+	if(fileTmpId === -9){ 
 		$(getFormLoadmaskAreaId(productId)).mask("Still uploading image please wait...");
 		setTimeout(function(){
 			productUpload(productId);
@@ -165,11 +164,17 @@ function productUpload(productId){
 	var product = window.globals.productsById[productId];
 	serializedData += "&attr="+JSON.stringify(product.attr); 
 	
-	
+
+	var url = "/product/" + productId; //default update
+	var type = "PUT";
+	if(isNaN(productId)){ //new
+		url = "/product";
+		type = "POST";
+	}
 	
 	$.ajaxWithMask({
-		url: '/admin/ax_product_submit',
-		type: 'POST',
+		url:url,
+		type:type,
 		data: serializedData,
 		success: function(responseObject){ 
 			if(responseObject.success!=1){
@@ -200,9 +205,8 @@ function productDelete(productId , serverDeletionDefaultTrue){
 		
 	}else{
 		$.ajaxWithMask({
-			url: '/admin/ax_product_delete',
-			type: 'POST',
-			data: { product_id: productId },
+			url: '/product/' + productId,
+			type: 'DELETE',
 			success: function(responseObject){ 
 				if(responseObject.success!=1){
 					apprise("Failed to delete = "+responseObject.msg);
@@ -364,16 +368,16 @@ function getInputFileTmpHolderId(productId , prependHashDefaultTrue){
 
 
 window.paginatorCallback = function(pageNum){ 
-	window.location = "/admin/products?page_num=" + pageNum;
+	window.location = "/display_admin/products?page_num=" + pageNum;
 };  
 
 function initGlobals(){
 	window.globals = {
-		productIds: <%=raw (@products.collect{|p| p[:product_id]}).to_json %>,
-		categories : <%=raw @categories.to_json%>,
+		productIds: <%=raw (@products_compact.collect{|p| p[:product_id]}).to_json %>,
+		categories : <%=raw @categories_compact.to_json%>,
 		itemsPerPage: <%=@items_per_page%>, 
 		//imageNotFoundPath: "/images/admin/image-not-found.png",
-		tableRowTemplate: "<%=escape_javascript table_row_item_box_tr%>",
+		tableRowTemplate: "<%=escape_javascript render :partial => 'templates/product'%>",
 		productIdsBeingEdited: [],
 		onBeforeUnload: function(){
 			if(window.globals.productIdsBeingEdited.length > 0) {
@@ -395,7 +399,7 @@ function initGlobals(){
 	};
 	// assign productsById
 	var productsById = {};
-	var products = <%=raw @products.to_json%>;
+	var products = <%=raw @products_compact.to_json%>;
 	var ll = products.length;
 	for(var i = 0 ;i  < ll ; i++){
 		var product =  products[i];
@@ -425,14 +429,8 @@ function getTableRow(product,styleCSS){
 		var regEx = new RegExp(templateKey,"g");
 		template = template.replace(regEx,product[key]);
 	}
-	
-	
-	// In case new product we don't want it to crash
-	var catId = "";
-	if(product.category) catId = product.category.category_id;  
-	
+	 
 	// Do other substitution
-	template = template.replace(/__category_id__/g,catId);
 	template = template.replace(/__content_style_css__/g,styleCSS);
 	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
 	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>"); 

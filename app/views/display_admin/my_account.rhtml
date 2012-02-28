@@ -14,11 +14,10 @@ function onSaveBtnClicked(){
 		apprise("One of the field(s) is empty. Please fill it in");
 		return;
 	}
-	
-	
+	 
 	$.ajaxWithMask({
-		url: "/admin/ax_password_update",
-		type: "POST",
+		url: "/user/" + window.globals.userId,
+		type: "PUT",
 		data: serializedData,
 		loadMaskQuery: "#form",
 		success: function(responseObject){ 

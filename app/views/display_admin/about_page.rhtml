@@ -1,8 +1,30 @@
 <br /> 
+<script language="JavaScript">
+
+function onSaveBtn(){
+	var data = $("#about_form").serialize();
+	$.ajaxWithMask({
+		url:"/store_setting",
+		type:"POST",
+		data: data,
+		dataType:"json",
+		success:function(responseObj, textStatus, jqXHR){
+			if(responseObj.success!==1){
+				apprise("Error happened="+textStatus);
+				return;
+			} 
+			window.location.reload(true);
+		},
+		loadMaskQuery:"body"
+	});
+}
+</script>
+
+
 <form id="about_form" method="POST">
 <textarea name="about_text" rows="20" cols="130"><%=@about_text%></textarea>
 <div class="buttonwrapper" >
-	<a class="ovalbutton green" href="#" style="float:right;" onclick="document.getElementById('about_form').submit();"><span><b>Save Changes</b></span></a> 
+	<a class="ovalbutton green" href="#" style="float:right;" onclick="onSaveBtn();return false;"><span><b>Save Changes</b></span></a> 
 </div> 
 </form>
 <br /> 

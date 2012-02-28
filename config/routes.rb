@@ -3,11 +3,11 @@ SimpleStore::Application.routes.draw do
   root :to => 'home#products'
   
   resources :product
+  resources :file_tmp
+  resources :category
+  resources :store_setting 
+  resources :user_controller
   
-  
-#=begin
-
-  #### DEPRECATED
   get "home/index"
   get "home/products"
   get "home/about"
@@ -15,26 +15,15 @@ SimpleStore::Application.routes.draw do
   get "home/brands"
   get "home/categories"
   
+  
   match 'display_admin' => 'display_admin#index'
   get "display_admin/index"
   get "display_admin/products"
-  get "display_admin/categories"
-  post "display_admin/categories"
-  get "display_admin/store_settings"
-  post "display_admin/store_settings" 
-  get "display_admin/about_page" 
-  post "display_admin/about_page"
+  get "display_admin/categories" 
+  get "display_admin/store_settings" 
+  get "display_admin/about_page"
   get "display_admin/my_account" 
-  
-  post "display_admin/ax_password_update"
-  post "display_admin/my_account" 
-  post "display_admin/ax_category_new"
-  post "display_admin/ax_file_upload"
-  post "display_admin/ax_file_delete"
-  post "display_admin/ax_product_submit"
-  post "display_admin/ax_product_delete"
-  #### END
-#=end  
+     
    
   
   # The priority is based upon order of creation:

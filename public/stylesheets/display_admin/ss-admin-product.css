@@ -1,37 +1,33 @@
  
-.table_row_item_box {
+.product {
 	margin-left:auto;
 	margin-right:auto;
 	border-spacing: 0px;
 
 }
-.table_row_item_box tr {
-	margin-left:auto;
-	margin-right:auto;	
-}
-.table_row_item_box .modified{
+.product .modified{
 	background-color: yellow;
 }
 
-.table_row_item_box_content { 
+.product .content { 
 	clear:both;
 	width:560px;
 	height:230px; 
 	padding: 20px;
 } 
-.table_row_item_box_content .left_section {
+.product .content .left_section {
 	clear:none;
 	float:left;
 	width: 220px;
 	height: 220px;
 } 
-.table_row_item_box_content .right_section {
+.product .content .right_section {
 	clear:none;
 	vertical-align:top;
 	margin-top:0px;
 	margin-left:220px; 
 }
-.table_row_item_box .buttons_section{
+.product .buttons_section{
 	vertical-align:middle;
 	padding-top:10px;
 }
