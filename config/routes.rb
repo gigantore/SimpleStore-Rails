@@ -1,9 +1,13 @@
 SimpleStore::Application.routes.draw do
   
   root :to => 'home#products'
-  #resources :home
-  #resources :admin
+  
+  resources :product
+  
+  
 #=begin
+
+  #### DEPRECATED
   get "home/index"
   get "home/products"
   get "home/about"
@@ -11,23 +15,25 @@ SimpleStore::Application.routes.draw do
   get "home/brands"
   get "home/categories"
   
-  match 'admin' => 'admin#index'
-  get "admin/index"
-  get "admin/products"
-  get "admin/categories"
-  get "admin/store_settings"
-  post "admin/store_settings" 
-  get "admin/about_page" 
-  post "admin/about_page"
-  get "admin/my_account" 
+  match 'display_admin' => 'display_admin#index'
+  get "display_admin/index"
+  get "display_admin/products"
+  get "display_admin/categories"
+  post "display_admin/categories"
+  get "display_admin/store_settings"
+  post "display_admin/store_settings" 
+  get "display_admin/about_page" 
+  post "display_admin/about_page"
+  get "display_admin/my_account" 
   
-  post "admin/ax_password_update"
-  post "admin/my_account" 
-  post "admin/ax_category_new"
-  post "admin/ax_file_upload"
-  post "admin/ax_file_delete"
-  post "admin/ax_product_submit"
-  post "admin/ax_product_delete"
+  post "display_admin/ax_password_update"
+  post "display_admin/my_account" 
+  post "display_admin/ax_category_new"
+  post "display_admin/ax_file_upload"
+  post "display_admin/ax_file_delete"
+  post "display_admin/ax_product_submit"
+  post "display_admin/ax_product_delete"
+  #### END
 #=end  
    
   

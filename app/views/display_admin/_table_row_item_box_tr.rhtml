@@ -26,37 +26,27 @@ __canvas_width__
   <td> 
 	<div class='table_row_item_box_content ' style='margin:10px;__content_style_css__'>  
 	  <input type='hidden' name="product_id" value=__product_id__ />
+	  <input id="form-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
 	  
 	  <!-- this won't be included in serialize() automatically -->
 	  <input id='input-file-btn-__product_id__' type="file" style="top:-1000px;left:-1000px;position:absolute;">
 	
-	<div id="form-image-area-__product_id__" class="right_section"> 
-	  </div>
-	  
-	  <div class="left_upper_section">
-		<div class="first_half">
-			Name<br />
-			<input id="form-input-name-__product_id__" type="text" name="name" value="__name__" /><br /><br />
-			
-			Category<br />
-			<select id="form-input-category-__product_id__" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
-			</select>
-		 </div>
-		 <div class="second_half">
-			Price<br />
-			<input id="form-input-price-__product_id__" type="text" name="price" value="__price__"/><br /><br /><br />
+		<div id="form-image-area-__product_id__" class="left_section"> 
+		</div>
+		<div class="right_section">
+			<input id="form-input-name-__product_id__" type="text" name="name" value="__name__" style="width:250px;font-weight:bold;font-size:20px" /><br />
+			<textarea id="form-input-description-__product_id__" name="description"  style="width:320px;height:130px;">__description__</textarea><br />
+			<br />
+			Category: <select id="form-input-category-__product_id__" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
+				</select>
+			<br /><br />
 			<input id="form-input-is-enabled-__product_id__" type="checkbox" value=true name="is_enabled" /> Enabled
+			
 			<script language='javascript'>
 				$("#form-input-is-enabled-__product_id__").attr("checked",__is_enabled__);
-			</script>
-		 </div>
-	  </div>
-	  
-	  <div class="left_bottom_section">
-		Description<br />
-		<textarea id="form-input-description-__product_id__" name="description" cols=50 rows=7>__description__</textarea><br /><br />
-	  </div>
-	  
+			</script>			
+		</div>
+	   
 	  
 
 		

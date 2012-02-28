@@ -1,4 +1,4 @@
-module AdminHelper
+module DisplayAdminHelper
   
   ##
   # This is a wrapper around ss_paginator_helper
@@ -19,6 +19,6 @@ module AdminHelper
   
   # See the template for params to replace
   def table_row_item_box_tr()
-    return render(:partial => 'admin/table_row_item_box_tr')
+    return render(:partial => 'display_admin/table_row_item_box_tr')
   end
 end

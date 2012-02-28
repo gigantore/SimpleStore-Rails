@@ -1,7 +1,7 @@
 require "base64"
 require "file_tmp_dir"
-class AdminController < ApplicationController
-  layout "admin"
+class DisplayAdminController < ApplicationController
+  layout "display_admin"
    
   
   def index 
@@ -13,6 +13,7 @@ class AdminController < ApplicationController
   def products  
     items_per_page = params[:items_per_page] || 15
     page_num = params[:page_num] || 1
+     
       
     @categories = Category.pull()
     @products = Product.pull(page_num,items_per_page) 
@@ -23,7 +24,37 @@ class AdminController < ApplicationController
   end
   
   def categories
-    @categories = Category.pull()
+    call_type = params[:call_type]
+    if call_type
+      category_id = params[:category_id]
+      value = params[:value]
+        
+      # update first
+      case call_type 
+      when "edit"
+        name = value #value is name
+        
+        cat = Category.find(category_id) || Category.new
+        cat.name = name;
+        cat.save!
+        
+      when "join"
+        join_to_catid = value #value is the cat id to merge to
+        
+        join_to_catid = "NULL" if join_to_catid == ""
+        Product.update_all("category_id = #{join_to_catid}","category_id = #{category_id}");
+        
+      when "delete"
+        # value is nothing here
+        # any product who has this category going to be nullified
+        Product.update_all("category_id = NULL","category_id = #{category_id}")
+        Category.destroy(category_id)
+      end
+       
+    end
+    
+    
+    @categories = Category.pull(true) 
   end 
   
   ##
@@ -82,7 +113,7 @@ class AdminController < ApplicationController
     if request.post?
       about_text = params[:about_text] 
       
-      text_db = StoreSetting.find_or_create_by_key("about_text")  
+      text_db = StoreSetting.find_or_initialize_by_key("about_text")  
       text_db.value = about_text
       text_db.save! 
       
@@ -125,7 +156,7 @@ class AdminController < ApplicationController
       }) 
     end
   end
-  
+   
   ##
   # The body is base64 string image data
   # Will put into some temporary folder and return file_tmp_id
@@ -171,11 +202,14 @@ class AdminController < ApplicationController
       product = Product.new
     end
      
+    cat_id = params[:category_id]
+    cat_id = nil if cat_id == "" 
+     
     product.name = params[:name]
     product.description = params[:description]
     product.is_enabled = params[:is_enabled]
     product.price = params[:price]
-    product.category_id = params[:category_id]
+    product.category_id = cat_id 
     product.attr_json = params[:attr]
     product.save!
      

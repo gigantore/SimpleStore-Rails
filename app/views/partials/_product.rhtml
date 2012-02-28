@@ -1,0 +1,35 @@
+
+<form id='product-form-<%=product.product_id%>' >
+<table id='product-table-<%=product.product_id%>' class='product show'>
+	<tr>
+		<td> 
+			<div class='content' style='margin:10px;'>  
+			  <input type='hidden' name="product_id" value=<%=product.product_id%> />
+			  <input id="product-form-input-price-<%=product.product_id%>" type="hidden" name="price" value="<%=product.price%>"/>
+	  
+				<div id="product-form-image-area-<%=product.product_id%>" class="left_section"> 
+				</div>
+				
+				<div class="right_section">
+					<input id="product-form-input-name-<%=product.product_id%>" type="text" name="name" value="<%=product.name%>" style="width:250px;font-weight:bold;font-size:20px" /><br />
+					<textarea id="product-form-input-description-<%=product.product_id%>" name="description"  style="width:320px;height:130px;"><%=product.description%></textarea><br />
+					<br />
+					Category: 
+					<select id="product-form-input-category-<%=product.product_id%>" class='category_select' name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="<%=product.category_id%>">
+					</select>
+					<br /><br />
+					<input id="product-form-input-is-enabled-<%=product.product_id%>" type="checkbox" value=true name="is_enabled" <%=(product.is_enabled && "checked") || ""%> /> Enabled
+					 			
+				</div>
+			</div>
+	  </td>
+	  <td class="buttons_section">
+		<div class="buttonwrapper" >
+			<a id="product-save-btn-<%=product.product_id%>" class="ovalbutton green" href="#" style="display:none"><span><b>Save Changes</b></span></a><br /><br /> 
+			<a id="product-delete-btn-<%=product.product_id%>" class="ovalbutton red" href="#" style="display:block"><span><b>Delete</b></span></a><br /><br /> 
+			<a id="product-cancel-new-btn-<%=product.product_id%>" class="ovalbutton orange" href="#" style="display:none"><span><b>Cancel New</b></span></a><br /><br /> 
+		</div> 
+	  </td>
+	</tr>
+</table>  
+</form>

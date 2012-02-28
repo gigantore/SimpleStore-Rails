@@ -6,6 +6,8 @@
 	} 
 %>
 
+<%= stylesheet_link_tag "admin/ss-admin-product.css" %>
+
 <script type="text/javascript">
 function onSelectCategoryChanged(selectDiv){
 	var val = selectDiv.value; 
@@ -61,78 +63,7 @@ function redoSelectCategoryOptions(productId){
 	
 	selectDiv.val(selectDiv.attr("valueholder"));
 	 
-} 
-/*
-function clearCanvasAndDeleteTempImage(productId){
-	var canvasId = getCanvasId(productId);
-	var ctx = $(canvasId)[0].getContext('2d');
-	ctx.clearRect( 0 , 0 , <%=canvas_size[:width]%>,<%=canvas_size[:height]%> ); 
-	
-	var fileTempId = $(getInputFileTmpHolderId(productId)).val();
-	if(fileTempId){ 
-		$.ajax({
-			url:"/admin/ax_file_delete",
-			type: "POST",
-			data: { file_tmp_id:fileTempId }
-		});
-		
-	} 
-	$(getInputFileTmpHolderId(productId)).val("-1"); // This tells server that the pic is removed
-	return ctx;
-}
-function renderCanvasFromURL(productId , dataURL){  
-	var ctx = clearCanvasAndDeleteTempImage(productId);
-	var img = new Image;
-	img.onload = function(){
-	  ctx.drawImage(img,0,0,<%=canvas_size[:width]%>,<%=canvas_size[:height]%> ); // Or at whatever offset you like
-	}; 
-	img.src = dataURL;	
-}
-function renderCanvasFromLocalAndUpload(productId , file){
-	var ctx = clearCanvasAndDeleteTempImage(productId);
-	
-	// render to canvas
-    var reader = new FileReader;
-    reader.onload = function(event) {
-    	// render to canvas
-        var img = new Image;
-        img.onload = function() {
-            ctx.drawImage(img, 0,0,<%=canvas_size[:width]%>,<%=canvas_size[:height]%> );
-        }
-        img.src = event.target.result;
-    }
-    reader.readAsDataURL(file);	
-    
-    
-    // upload now
-    $(getInputFileTmpHolderId(productId)).val(-9);  // trigger that currently it's in progress
-	var fileUploader = new FileUploadRequest(file);
-	fileUploader.send(function(responseObject){
-		if(responseObject.success !== 1){
-			alert("Something wrong with the upload="+responseObject.msg);
-			return;
-		}
-		
-		var data = responseObject.data;
-		var fileTmpId = data.file_tmp_id;
-		
-		$(getInputFileTmpHolderId(productId)).val(fileTmpId);
-	}); 
-}
-function renderCanvasWithInitialImage(productId){ 
-	var dataUrl = $(getCanvasId(productId)).attr("dataurl"); 
-	if(dataUrl === ""){
-		// no image specified... 
-		dataUrl = window.globals.imageNotFoundPath; 
-	}  
-	renderCanvasFromURL(productId,dataUrl); 
-} 
-function processFilePreview(productId,file){
-	renderCanvasFromLocalAndUpload(productId,file); 
-	$(getCanvasRemoveBtnId(productId)).show();// display the remove btn
-	displayFormChangedState(productId); 
-} 
-*/
+}  
 function setupFormEventsDetection(productId){   
 	var product = window.globals.productsById[productId];
 	if(!product) apprise("Error happened. Product must not be null");
@@ -163,7 +94,7 @@ function setupFormEventsDetection(productId){
 	
 	$(getInputIsEnabledId(productId))[0].addEventListener("change",function(e){
 		var isEnabled = true;
-		if(product.is_enabled) isEnabled = product.is_enabled;
+		if(typeof(product.is_enabled) != "undefined") isEnabled = product.is_enabled;
 		if( $(this).is(':checked') !=  isEnabled) displayFormChangedState(productId);
 	});
 	
@@ -196,35 +127,7 @@ function setupFormEventsDetection(productId){
 	imageuploader.bind("imageuploader.imagechanged",function(){
 		displayFormChangedState(productId);
 	});
-	
-/*	
-	$(getCanvasId(productId)).click(function(){ 
-		$(getFileInputBtnId(productId)).click();
-	});	 
-	$(getFileInputBtnId(productId)).change(function(event){
-		var file = event.target.files[0];
-		processFilePreview(productId,file);
-	});
-	$(getCanvasRemoveBtnId(productId)).click(function(){
-		// remove the image back to default 
-		renderCanvasFromURL(productId,window.globals.imageNotFoundPath); 
-		displayFormChangedState(productId);
-	});		 	 
-	//Setup DND
-	var _stopPropagation = function(e){
-		e.stopPropagation();
-		e.preventDefault();
-	};   
-	var dropbox = document.getElementById(getFormContentId(productId,false));  
-	dropbox.addEventListener("dragenter", _stopPropagation, false);  
-	dropbox.addEventListener("dragover", _stopPropagation, false);  
-	dropbox.addEventListener("drop", function(e){ 
-		_stopPropagation(e);
-		var dt = e.dataTransfer;  
-		var file = dt.files[0];
-		processFilePreview(productId , file); 
-	}, false);  	
-	*/
+	 
 }
 
 function displayFormChangedState(productId){
@@ -322,8 +225,8 @@ function productCreateNew(){
 		product_id: tmpProductId,
 		is_enabled: true,
 		category_id: "",
-		name: "",
-		description: "",
+		name: "Name",
+		description: "Description",
 		price: "",
 		thumbnail_url: "",
 		attr:{
@@ -334,8 +237,7 @@ function productCreateNew(){
 	var bgColor = "background-color:"+colorCode+";";
 	$(getTableRowItemBoxId()).prepend(getTableRow(window.globals.productsById[tmpProductId],bgColor));
 	
-	redoSelectCategoryOptions(tmpProductId);
-	renderCanvasWithInitialImage(tmpProductId);
+	redoSelectCategoryOptions(tmpProductId); 
 	displayFormChangedState(tmpProductId);
 	setupFormEventsDetection(tmpProductId); 
 	
@@ -416,17 +318,7 @@ function getFormLoadmaskAreaId(productId){
 function getFormImageAreaId(productId , prependHashDefaultTrue){
 	var id = "form-image-area-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-/*
-function getCanvasId(productId , prependHashDefaultTrue){
-	var id = "form-canvas-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
-}
-function getCanvasRemoveBtnId(productId , prependHashDefaultTrue){
-	var id = "form-canvas-remove-btn-" + productId;
-	return (prependHashDefaultTrue===false?id:"#"+id);
 } 
-*/
 function getSaveBtnId(productId, prependHashDefaultTrue){
 	var id = "save-btn-" + productId;
 	return (prependHashDefaultTrue===false?id:"#"+id);	
@@ -543,17 +435,14 @@ function getTableRow(product,styleCSS){
 	template = template.replace(/__category_id__/g,catId);
 	template = template.replace(/__content_style_css__/g,styleCSS);
 	template = template.replace(/__canvas_height__/g,"<%=canvas_size[:height]%>");
-	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>");
-	//console.log("--temlate");
-	//console.log(template);
+	template = template.replace(/__canvas_width__/g,"<%=canvas_size[:width]%>"); 
 	return template;
 }
 
 $(document).ready(function(){ 
 	initGlobals(); 
 	insertTableRows();
-	forEachProductId(redoSelectCategoryOptions); 
-	//forEachProductId(renderCanvasWithInitialImage); 
+	forEachProductId(redoSelectCategoryOptions);   
 	forEachProductId(setupFormEventsDetection); 
 	window.onbeforeunload = window.globals.onBeforeUnload;
 });

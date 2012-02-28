@@ -40,12 +40,13 @@ class Product < ActiveRecord::Base
     page_num = page_num.to_i
     count = count.to_i
   
-    output = [] 
+    #output = [] 
     products = Product.order("product_id desc").limit("#{count*(page_num-1)},#{count}")
-    products.each do |p|
-      output.push self.construct_output( p )
-    end
-    return output
+    return products
+    #products.each do |p|
+    #  output.push self.construct_output( p )
+    #end
+    #return output
   end
   
   def self.pull_one( product_id ) 

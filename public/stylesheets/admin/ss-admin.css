@@ -1,62 +1,9 @@
-body {
+
+#maintab {
 	width: 850px;
 	margin-left: auto;
 	margin-right: auto;
 	font-size: .8em !important;
 }
  
- 
-.table_row_item_box {
-	margin-left:auto;
-	margin-right:auto;
-	border-spacing: 0px;
-
-}
-.table_row_item_box tr {
-	margin-left:auto;
-	margin-right:auto;	
-}
-.table_row_item_box .modified{
-	background-color: yellow;
-}
-
-.table_row_item_box_content { 
-	clear:both;
-	width:560px;
-	height:280px; 
-	padding: 20px;
-} 
-.table_row_item_box_content .left_upper_section {
-	clear:none;
-	float:left;
-	width: 350px;
-	height: 125px;
-}
-.table_row_item_box_content .left_upper_section .first_half {
-	clear:none;
-	float:left;
-	width: 50%; 
-}
-.table_row_item_box_content .left_upper_section .right_half {
-	clear:none;
-	float:right;
-	width: 50%; 
-}
-.table_row_item_box_content .left_bottom_section {
-	clear:none;
-	float:left;
-	width: 350px;
-	height: 125px;
-}
-.table_row_item_box_content .right_section {
-	clear:none;
-	vertical-align:top;
-	margin-top:0px;
-	margin-right:0px;
-	float:right;
-}
-.table_row_item_box .buttons_section{
-	vertical-align:middle;
-	padding-top:10px;
-}
 
