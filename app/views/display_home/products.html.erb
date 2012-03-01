@@ -40,7 +40,7 @@ function insertProducts( ){
 		var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;-moz-border-radius: 15px;border-radius: 15px;";
 		var topStyleCSS = "width:500px;float:left;clear:none;";
 		if(i%2===0){
-			
+			//don't assign anything
 		}else{
 			topStyleCSS += "margin-left:50px;"
 		} 
@@ -98,6 +98,7 @@ $(document).ready(function(){
 
 
 <br />
+
 <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%>
 <br /> 
 

@@ -8,16 +8,18 @@
 		<%= stylesheet_link_tag "jquery/loadmask/jquery.loadmask.css" %>
 		<%= stylesheet_link_tag "oval-button/oval-button.css" %>
 		<%= stylesheet_link_tag "centeredfocus/centeredfocus" %>
-		 
+		 <%= stylesheet_link_tag "custquery/custquery" %>
 		
 		<script type="text/javascript" src="/javascripts/jquery/jquery-1.7.1.min.js"></script> 
 		<script type="text/javascript" src="/javascripts/jquery/jquery-ui-1.8.17.custom.min.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery/loadmask/jquery.loadmask.min.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery/apprise/apprise-1.5.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery/jstorage/jstorage.js"></script>
 		<script type="text/javascript" src="/javascripts/ajaxwithmask/ajaxwithmask.js"></script>
 		<script type="text/javascript" src="/javascripts/centeredfocus/centeredfocus.js"></script>
 	 	<script type="text/javascript" src="/javascripts/statictabs/statictabs.js"></script>
-	 
+	 	<script type="text/javascript" src="/javascripts/custquery/custquery.js"></script>
+	 	
 	 	<!-- Home specific -->
 		<%= stylesheet_link_tag "display_home/shared.css" %> 
 		 
@@ -25,33 +27,30 @@
 		
 		<script language="javascript"> 
 			$(document).ready(function(){ 
-				var actionName = "<%=controller.action_name%>";
-				var tabNamesAndUrls = [
-					["Products","/display_home/products"], 
-					["About","/display_home/about"]
-				];
-				var selected = 0;
-				$.each(tabNamesAndUrls,function(index,nameAndUrl){
-					var url = nameAndUrl[1];
-					if(url.indexOf(actionName) >= 0){
-						selected = index; 
-					}
-				});
-				
-				$("#maintab").statictabs({ 
-					tabNamesAndUrls: tabNamesAndUrls,
-					selected: selected,
-					html: "<%=escape_javascript yield%>"
-				});
-				 
+
 			});
 		</script>
 	</head>
 	<body>    
+		<div id="custbutton"></div>
+		
 		<div id="maindiv">
 			<img src="<%=@store_front_image_url%>" />
-			<div id="maintab">  
-			</div>
+			
+			<%
+				tab_names = ["Products","About"]
+				urls = ["/display_home/products","/display_home/about"]
+				selected = (urls.enum_with_index.collect {|url,i| (url.index(controller.action_name) && i) || nil   }).compact[0]
+			%>
+			
+			<%=	main_tab_open ({
+					:tab_display_names => tab_names,
+					:tab_urls => urls,
+					:selected =>  selected	
+				})
+			%>
+				<%=yield%>
+			<%= main_tab_close %>
 		</div> 
 		 
 	</body> 

@@ -1,4 +1,13 @@
-
+/*!
+ * Originally this is supposed to be maintab, but there is a problem -- the rails "yield" is pretty annoying and there
+ *  is no way you can do anything about it
+ * 
+ * Statictabs using "html" config option isn't good either since the JS is going to be compressed and when there is an error
+ *  you don't get to see the correct number lines
+ * 
+ * From now on this is deprecated but DO NOT delete this might be useful in the future
+ * Also next time *maybe* we won't need the HTML
+ */
 (function( $ ){
 	
 	$.fn.statictabs = function( method ) {

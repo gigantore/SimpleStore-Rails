@@ -31,7 +31,7 @@ class Product < ActiveRecord::Base
 	
 	# See object[:...] below to see the required keys
 	# Note that for column attr_json it's taking from key "attr" value type string
-	def apply_from_object object
+	def save_from_object! object
 	  cat_id = object[:category_id]
     cat_id = nil if cat_id == ""
      
@@ -41,7 +41,7 @@ class Product < ActiveRecord::Base
     self.price = object[:price]
     self.category_id = cat_id 
     self.attr_json = object[:attr]
-     
+    self.save!
     
     file_tmp_id = object[:file_tmp_id]
     if file_tmp_id.to_i == -1

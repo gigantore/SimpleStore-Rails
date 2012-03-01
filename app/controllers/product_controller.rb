@@ -6,8 +6,7 @@ class ProductController < ApplicationController
   # POST /controller
   def create
     product = Product.new
-    product.apply_from_object params
-    product.save!
+    product.save_from_object! params 
     
     ajax_return(true,{
       :product => product.compactify
@@ -17,8 +16,7 @@ class ProductController < ApplicationController
   # PUT /controller/:id
   def update 
     product = Product.find(params[:id]) 
-    product.apply_from_object params
-    product.save!
+    product.save_from_object! params 
       
        
     ajax_return(true,{

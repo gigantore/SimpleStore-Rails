@@ -3,7 +3,7 @@
 <script language="JavaScript"> 
 function onEdit(categoryId){
 	var data = getCategoryData(categoryId);
-	apprise("Please input new category name",{input:true,value:data.name},function(newName){
+	apprise("Please input new category name",{input:data.name},function(newName){
 		if(newName){
 			formSubmit("/category/"+categoryId,"PUT","name="+newName);
 		}

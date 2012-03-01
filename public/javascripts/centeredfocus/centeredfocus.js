@@ -27,7 +27,7 @@
 			this.hide(); // do this first
 			
 			var config = $.extend({
-				saveText: "Join"
+				saveText: "Save"
 			},config_);
 			
 		 	var uniqueId = __centeredfocus_count__++;
@@ -53,7 +53,7 @@
 			//this.show($.proxy(methods.onResize_,this));
 		},
 		
-		show: function(){
+		show: function(){ 
 			var docWidth = $(document).width();
 			var docHeight = $(document).height();
 			
@@ -67,18 +67,24 @@
 			// show self and fix its attributes soon
 			this.show();
 			methods.onResize_.apply(this);
-			
-
+			 
 			 
 		},
 		
 		onResize_:function(e){ 
+			var w = this.width();
+			var h = this.height();
+			
+			this.css("margin-left","-" + (w/2) + "px");
+			this.css("margin-top","-" + (h/2) + "px");
+			/*
 			var docWidth = $(document).width();
 			var docHeight = $(document).height();
 			var left = (docWidth - this.width())/2;
 			var top = (docHeight - this.height())/2; 
 			this.css("left",left + "px");
 			this.css("top",top + "px");
+			*/
 			
 			// show cancel btn
 			var cancelLeft = this.width() + 40 - 16; //20 is total padding

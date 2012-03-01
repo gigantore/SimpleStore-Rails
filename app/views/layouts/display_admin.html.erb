@@ -30,36 +30,28 @@
 		<script language="javascript"> 
 			$(document).ready(function(){
 				 
-				var actionName = "<%=controller.action_name%>";
-				var tabNamesAndUrls = [
-					["Products","/display_admin/products"],
-					["Categories","/display_admin/categories"],
-					["Store Settings","/display_admin/store_settings"],
-					["About Page","/display_admin/about_page"],
-					["My Account","/display_admin/my_account"]
-				];
-				var selected = 0;
-				$.each(tabNamesAndUrls,function(index,nameAndUrl){
-					var url = nameAndUrl[1];
-					if(url.indexOf(actionName) >= 0){
-						selected = index; 
-					}
-				});
-				
-				$("#maintab").statictabs({ 
-					tabNamesAndUrls: tabNamesAndUrls,
-					selected: selected,
-					html: "<%=escape_javascript yield%>"
-				});
+
 				 
 			});
 		</script>
 	</head>
 	<body>   
-		<div id="maintab"> 
-		</div>
+			<%
+				tab_names = ["Products","Categories","Store Settings","About Page","My Account"]
+				urls = ["/display_admin/products","/display_admin/categories","/display_admin/store_settings","/display_admin/about_page","/display_admin/my_account"]
+				selected = (urls.enum_with_index.collect {|url,i| (url.index(controller.action_name) && i) || nil   }).compact[0]
+			%>
 			
- 
+			<%=	main_tab_open ({
+					:tab_display_names => tab_names,
+					:tab_urls => urls,
+					:selected =>  selected	
+				})
+			%>
+				<%=yield%>
+			<%= main_tab_close %>
+		
+
 	</body>
 	 
 </html>
