@@ -18,7 +18,7 @@ function onSelectCategoryChanged(selectDiv){
 			if(newCat){
 				console.log(newCat);
 				$.ajax({
-					url: '/admin/ax_category_new',
+					url: '/category',
 					type: 'POST', dataType: 'json',
 					data: "name=" + newCat,
 					success:function(responseObj, textStatus, jqXHR){ 
@@ -68,40 +68,47 @@ function redoSelectCategoryOptions(productId){
 	 
 }  
 function setupFormEventsDetection(productId){   
-	var product = window.globals.productsById[productId];
+	var product = getProductData(productId);
 	if(!product) apprise("Error happened. Product must not be null");
 	
 	var productTmpl = new ProductTmpl(productId);
 	var ids = productTmpl.ids;
 	
 	$(ids.inputNameId).keyup(function(e){
+		var product = getProductData(productId);// this might change due to previous update
 		var name = "";
 		if(product.name) name = product.name;
 		if($(this).val() != name) displayFormChangedState(productId); 
 	}); 
 	
 	$(ids.inputDescriptionId).keyup(function(e){
+		var product = getProductData(productId);// this might change due to previous update
 		var description = "";
 		if(product.description) description = product.description;
 		if($(this).val() != description) displayFormChangedState(productId);
 	});
 	
 	$(ids.inputPriceId).keyup(function(e){
+		var product = getProductData(productId);// this might change due to previous update
 		var price = "";
 		if(product.price) price = product.price;
 		if($(this).val() != price) displayFormChangedState(productId);
 	});
 	
 	$(ids.inputCategoryId)[0].addEventListener("change",function(e){
+		var product = getProductData(productId);// this might change due to previous update
 		var catId = "";
 		if(product.category) catId = product.category.category_id; 
 		if($(this).val() != (catId)) displayFormChangedState(productId);
 	});
 	
 	$(ids.inputIsEnabledId)[0].addEventListener("change",function(e){
+		var product = getProductData(productId); // this might change due to previous update
 		var isEnabled = true;
 		if(typeof(product.is_enabled) != "undefined") isEnabled = product.is_enabled;
 		if( $(this).is(':checked') !=  isEnabled) displayFormChangedState(productId);
+		 
+		
 	});
 	
 	$(ids.saveBtnId).click(function(e){
@@ -158,14 +165,11 @@ function displayFormUnchangedState(productId){
 
 function productUpload(productId){ 
 	var productTmpl = new ProductTmpl(productId);
-	var ids = productTmpl.ids;
-
+	var ids = productTmpl.ids; 
 	var serializedData = $(ids.formId).serialize();
 	 
 	var fileTmpIds = $(ids.imageAreaId).imageuploader("getFileTmpId"); 
-	if(fileTmpIds.length !== 1){
-		apprise("Internal Error: returned ids len is != 1 ");
-	}
+	if(fileTmpIds.length !== 1){ apprise("Internal Error: returned ids len is != 1 "); }
 	var fileTmpId = parseInt(fileTmpIds[0],10);
 	if(fileTmpId === -9){ 
 		$(ids.topContainerId).mask("Still uploading image please wait...");
@@ -174,10 +178,13 @@ function productUpload(productId){
 		},1000);
 		return;
 	}
-	serializedData += "&file_tmp_id="+fileTmpId;
 	 
-	var product = window.globals.productsById[productId];
-	serializedData += "&attr="+JSON.stringify(product.attr); 
+	var product =getProductData(productId);
+	serializedData += "&attr_json="+JSON.stringify(product.attr); 
+	
+	if(serializedData.indexOf("is_enabled") == -1){
+		serializedData += "&is_enabled=false";
+	}
 	
 
 	var url = "/product/" + productId; //default update
@@ -210,7 +217,7 @@ function productDelete(productId , serverDeletionDefaultTrue){
 
 	var deleteDiv = function(){
 		window.globals.productIds = window.globals.productIds.splice(window.globals.productIds.indexOf(productId));
-		delete window.globals.productsById[productId];
+		delProductData(productId);
 		$(ids.topContainerId).fadeOut(1000,function(){
 			$(this).remove();
 		});	
@@ -251,11 +258,9 @@ function productCreateNew(){
 		description: "Description",
 		price: "",
 		thumbnail_url: "",
-		attr:{
-			color: colorCode
-		}
+		attr_json:'{"color":"'+colorCode+'"}'
 	};
-	window.globals.productsById[tmpProductId] = productData;
+	setProductData(tmpProductId,productData); 
 	 
 	productData['content_level_style'] = "background-color:"+colorCode+";";
 	
@@ -279,7 +284,8 @@ function convertProductId(oldProductId , newProductId , newProductData){
 	window.globals.productIds[indexInArray] = newProductId;
 	
 	// deal with value
-	window.globals.productsById[newProductId] = newProductData;
+	delProductData(oldProductId);
+	setProductData(newProductId,newProductData);  
 
 
 	var productTmpl = new ProductTmpl(oldProductId);
@@ -324,7 +330,17 @@ function forEachProductId(functionToCall){
 	}
 }
 
-
+function getProductData(productId){
+	return window.globals.productsById[productId];
+}
+function delProductData(productId){
+	delete window.globals.productsById[productId];
+}
+function setProductData(productId,productData){
+	if (typeof(window.globals.productsById)=="undefined") window.globals.productsById = {};
+	productData.attr = $.parseJSON(productData.attr_json);
+	window.globals.productsById[productId] = productData;	
+}
 
 
 window.paginatorCallback = function(pageNum){ 
@@ -333,8 +349,8 @@ window.paginatorCallback = function(pageNum){
 
 function initGlobals(){
 	window.globals = {
-		productIds: <%=raw (@products_compact.collect{|p| p[:product_id]}).to_json %>,
-		categories : <%=raw @categories_compact.to_json%>,
+		productIds: <%=raw (@products.collect{|p| p["product_id"]}).to_json %>,
+		categories : <%=raw @categories.to_json%>,
 		itemsPerPage: <%=@items_per_page%>, 
 		//imageNotFoundPath: "/images/admin/image-not-found.png",
 		tableRowTemplate: "<%=escape_javascript render :partial => 'templates/product'%>",
@@ -357,15 +373,13 @@ function initGlobals(){
 			"#FFE4B5"
 		]
 	};
-	// assign productsById
-	var productsById = {};
-	var products = <%=raw @products_compact.to_json%>;
+	// assign productsById 
+	var products = <%=raw @products.to_json%>;
 	var ll = products.length;
 	for(var i = 0 ;i  < ll ; i++){
 		var product =  products[i];
-		productsById[product.product_id] = product;
-	}
-	window.globals.productsById = productsById;	
+		setProductData(product.product_id,product); 
+	} 
 }
 
 function insertTableRows( ){
@@ -376,7 +390,7 @@ function insertTableRows( ){
 	var ll = window.globals.productIds.length; 
 	for(var i = 0 ; i< ll ; i++){
 		var pid = window.globals.productIds[i];
-		var product = window.globals.productsById[pid]; 
+		var product = getProductData(pid); 
 		collectionsDiv.append(compileProductTemplate(pid,product));
 	}
 } 

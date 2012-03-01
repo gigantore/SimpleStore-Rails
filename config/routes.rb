@@ -2,7 +2,9 @@ SimpleStore::Application.routes.draw do
   
   root :to => 'home#products'
   
+  post "/product", :to => "product#update", :via => "put"
   resources :product
+  
   resources :file_tmp
   resources :category
   resources :store_setting 

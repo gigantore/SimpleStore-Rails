@@ -40,7 +40,11 @@ ProductTmpl.prototype.compile = function(templateStr , replaceTmplsWith){
 	for(var key in replaceTmplsWith){
 		var templateKey = "__" + key + "__"; 
 		var regEx = new RegExp(templateKey,"g");
-		templateStr = templateStr.replace(regEx,replaceTmplsWith[key]);
+		var value = replaceTmplsWith[key];
+		if(key == "name" && value.indexOf('"')>0){
+			value = value.replace(/"/g,'\\"');
+		}
+		templateStr = templateStr.replace(regEx,value);
 	} 
 	
 	return templateStr;	

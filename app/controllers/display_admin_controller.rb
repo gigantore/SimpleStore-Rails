@@ -16,8 +16,8 @@ class DisplayAdminController < ApplicationController
     products = Product.pull(page_num,items_per_page)  
     categories = Category.pull()
     
-    @categories_compact = categories.collect!{|c| c.compactify} 
-    @products_compact = products.collect!{|p| p.compactify}
+    @categories = categories.collect{|c| c.as_json } 
+    @products = products.collect{|p| p.as_json }
     @items_per_page = items_per_page
     @page_num = page_num.to_i
     @total_items = Product.count    

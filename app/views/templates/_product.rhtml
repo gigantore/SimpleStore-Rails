@@ -11,8 +11,7 @@ TEMPLATES (REQUIRED TO SUBSTITUTE via js either manually or use product.js):
 FOR ADMIN
 	__product_id__
 	__name__
-	__description__
-	__price__
+	__description__ 
 	__is_enabled__
 	__category_id__
 	__thumbnail_url__ 
@@ -59,17 +58,17 @@ end
 				
 				
 <% if(user_type == :admin) %>
-				<input id="product-input-name-__product_id__" type="text" class="name" name="name" value="__name__" style="" /><br />
+				<input id="product-input-name-__product_id__" type="text" class="name" name="name" value="" style="" /><br />
 				<textarea id="product-input-description-__product_id__" name="description" class="description" style="">__description__</textarea><br />
 				<br />
-				
-				<input id="product-input-price-__product_id__" type="hidden" name="price" value="__price__"/>
+				 
 				Category: <select id="product-input-category-__product_id__"  name="category_id" onchange="onSelectCategoryChanged(this);" valueholder="__category_id__">
 					</select>
 				<br /><br />
 				<input id="product-input-is-enabled-__product_id__" type="checkbox" value=true name="is_enabled" /> Enabled
 				<script language='javascript'>
 					$("#product-input-is-enabled-__product_id__").attr("checked",__is_enabled__);
+					$("#product-input-name-__product_id__").val("__name__");
 				</script>
 				
 <% else %>

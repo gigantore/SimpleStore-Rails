@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120226042902) do
+ActiveRecord::Schema.define(:version => 20120301055009) do
 
   create_table "brands", :primary_key => "brand_id", :force => true do |t|
     t.string   "name",       :null => false
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(:version => 20120226042902) do
 
   create_table "categories", :primary_key => "category_id", :force => true do |t|
     t.string   "name",       :null => false
+    t.datetime "updated_at"
     t.datetime "created_at"
   end
 
@@ -31,6 +32,7 @@ ActiveRecord::Schema.define(:version => 20120226042902) do
     t.boolean  "is_enabled",  :default => true
     t.float    "price",       :default => 0.0
     t.text     "attr_json"
+    t.datetime "updated_at"
     t.datetime "created_at"
   end
 

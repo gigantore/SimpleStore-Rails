@@ -3,52 +3,46 @@ require "file_tmp_dir"
 class ProductController < ApplicationController
   layout nil 
    
-  # POST /controller
+  # POST /product
   def create
-    product = Product.new
-    product.save_from_object! params 
-    
-    ajax_return(true,{
-      :product => product.compactify
-    }) 
+    raise "routes.rb redirects this to update. To create a new product you still must do POST /product."
   end
   
-  # PUT /controller/:id
-  def update 
-    product = Product.find(params[:id]) 
-    product.save_from_object! params 
-      
+  # PUT /product/:id
+  def update  
+    product = (params[:id] && Product.find(params[:id])) || Product.new 
+    product.merge_json params
+    product.save!  
        
     ajax_return(true,{
-      :product => product.compactify
+      :product => product.as_json
     }) 
   end
   
 
-  # DELETE /controller/:id
-  def destroy
-    product_id = params[:id]
-    Product.destroy(product_id) 
+  # DELETE /product/:id
+  def destroy 
+    Product.destroy(params[:id]) 
     ajax_return(true)
   end
   
 
-  # GET /controller
+  # GET /product
   def index
     raise "Unimplemented"
   end
   
-  # GET /controller/new
+  # GET /product/new
   def new
     raise "Unimplemented"
   end
    
-  # GET /controller/:id
+  # GET /product/:id
   def show() 
     raise "Unimplemented"
   end
   
-  # GET /controller/:id/edit
+  # GET /product/:id/edit
   def edit
     raise "Unimplemented"
   end

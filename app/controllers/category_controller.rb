@@ -13,8 +13,8 @@ class CategoryController < ApplicationController
       
       # I don't think returning all_categories is correct here.
       ajax_return(true , {
-        "new_category" => Category.construct_output(cat),
-        "all_categories" => Category.pull()
+        "new_category" => cat.as_json,
+        "all_categories" => Category.pull().collect{|cat| cat.as_json}
       }) 
     end    
   end
