@@ -19,7 +19,24 @@
 -- Current Database: `simplestoredb`
 --
 
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `simplestoredb` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
 USE `simplestoredb`;
+
+--
+-- Table structure for table `brands`
+--
+
+DROP TABLE IF EXISTS `brands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `brands` (
+  `brand_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`brand_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `brands`
@@ -32,6 +49,22 @@ INSERT INTO `brands` VALUES (1,'brand_0','2012-01-05 21:44:03'),(2,'brand_1','20
 UNLOCK TABLES;
 
 --
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `categories` (
+  `category_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `categories`
 --
 
@@ -40,6 +73,33 @@ LOCK TABLES `categories` WRITE;
 INSERT INTO `categories` VALUES (1,'1112322','2012-03-03 03:27:33','2012-01-05 21:44:03'),(2,'category_1',NULL,'2012-01-05 21:44:03'),(3,'category_2',NULL,'2012-01-05 21:44:03'),(4,'category_3',NULL,'2012-01-05 21:44:03'),(5,'category_4',NULL,'2012-01-05 21:44:03'),(6,'category_5',NULL,'2012-01-05 21:44:03'),(7,'category_6',NULL,'2012-01-05 21:44:03'),(8,'category_7',NULL,'2012-01-05 21:44:03'),(9,'category_8',NULL,'2012-01-05 21:44:03'),(10,'category_9',NULL,'2012-01-05 21:44:03'),(15,'Some Cat\'\"',NULL,'2012-02-20 23:27:27'),(16,'ca',NULL,'2012-02-20 23:28:25'),(17,'quotesquotes',NULL,'2012-02-20 23:28:52'),(18,'newcat',NULL,'2012-02-23 02:34:41'),(19,'shoes',NULL,'2012-02-23 02:38:17'),(20,'zzz',NULL,'2012-02-23 03:24:59'),(21,'asfsadfasdf','2012-03-01 22:39:16','2012-03-01 22:39:16'),(22,'zxxcvzvxc','2012-03-01 22:41:05','2012-03-01 22:41:05'),(23,'papa','2012-03-01 22:41:14','2012-03-01 22:41:14');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `products` (
+  `product_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `brand_id` int(11) DEFAULT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `description` varchar(255) DEFAULT '',
+  `origin` varchar(255) DEFAULT '',
+  `is_enabled` tinyint(1) DEFAULT '1',
+  `price` float DEFAULT '0',
+  `attr_json` text,
+  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`product_id`),
+  KEY `brand_id` (`brand_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`brand_id`),
+  CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=227 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `products`
@@ -52,6 +112,19 @@ INSERT INTO `products` VALUES (1,'product_11',10,2,'Lucy and Paul meet \"\'Reba,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `schema_migrations`
+--
+
+DROP TABLE IF EXISTS `schema_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schema_migrations` (
+  `version` varchar(255) NOT NULL,
+  UNIQUE KEY `unique_schema_migrations` (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `schema_migrations`
 --
 
@@ -62,6 +135,22 @@ INSERT INTO `schema_migrations` VALUES ('20120105045203'),('20120105045259'),('2
 UNLOCK TABLES;
 
 --
+-- Table structure for table `store_settings`
+--
+
+DROP TABLE IF EXISTS `store_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `store_settings` (
+  `key` varchar(255) NOT NULL DEFAULT '',
+  `value` text,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `store_settings`
 --
 
@@ -70,6 +159,26 @@ LOCK TABLES `store_settings` WRITE;
 INSERT INTO `store_settings` VALUES ('about_text','About about 123\r\n\r\nSDFSFSDSF12 121 ','2012-02-26 03:46:31','2012-02-28 06:22:15'),('phone_number','1231231232233','2012-02-25 19:24:00','2012-03-03 03:34:07'),('store_name','Mike91133','2012-02-25 19:28:00','2012-03-03 03:34:07');
 /*!40000 ALTER TABLE `store_settings` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `is_admin` tinyint(1) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
