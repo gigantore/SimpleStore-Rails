@@ -26,7 +26,7 @@ class DisplayAdminController < ApplicationController
   
   def categories 
     categories = Category.order("name asc")
-    @categories_compact = categories.collect!{|c| c.compactify}
+    @categories_compact = categories.collect{|c| c.as_json}
     @categories_product_counts = Category.find_product_counts(categories)
   end 
   

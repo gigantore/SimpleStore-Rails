@@ -15,8 +15,8 @@ window.paginatorCallback = function(pageNum){
 };  
 
 window.globals = {
-	products: <%=raw @products_compact.to_json%>,
-	productIds: <%=raw (@products_compact.collect{|p| p[:product_id]}).to_json %>,
+	products: <%=raw @products.to_json%>,
+	productIds: <%=raw (@products.collect{|p| p["product_id"]}).to_json %>,
 	tableRowTemplate: "<%=escape_javascript render :partial => 'templates/product', :locals => {:user_type => :user}%>"
 };
 
@@ -78,6 +78,7 @@ $(document).ready(function(){
 	var ll = products.length;
 	for(var i = 0 ;i  < ll ; i++){
 		var product =  products[i];
+		product.attr = $.parseJSON(product.attr_json);
 		productsById[product.product_id] = product;
 	}
 	window.globals.productsById = productsById;		

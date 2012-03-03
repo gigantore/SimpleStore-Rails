@@ -100,11 +100,11 @@ All Categories:
 <table>
 <% @categories_compact.each do |category| %>
 	<tr>
-		<td style="width:200px;"><%=category[:name]%></td>
-		<td>[<%=@categories_product_counts[category[:category_id]]%> products]&nbsp;&nbsp;&nbsp;</td>
-		<td><a href="#" onclick="onEdit(<%=category[:category_id]%>);return false;">Edit</a></td>
-		<td><a href="#" onclick="onJoin(<%=category[:category_id]%>);return false;">Join</a></td>
-		<td><a href="#" onclick="onDelete(<%=category[:category_id]%>);return false;">Delete</a></td>
+		<td style="width:200px;"><%=category["name"]%></td>
+		<td>[<%=@categories_product_counts[category["category_id"]]%> products]&nbsp;&nbsp;&nbsp;</td>
+		<td><a href="#" onclick="onEdit(<%=category["category_id"]%>);return false;">Edit</a></td>
+		<td><a href="#" onclick="onJoin(<%=category["category_id"]%>);return false;">Join</a></td>
+		<td><a href="#" onclick="onDelete(<%=category["category_id"]%>);return false;">Delete</a></td>
 	</tr>
 <% end %>
 </table> 

@@ -19,7 +19,7 @@ class DisplayHomeController < ApplicationController
   	items_per_page = params[:items_per_page] || 15
   	page_num = params[:page_num] || 1
   
-    @products_compact = Product.pull(page_num,items_per_page).collect!{|p| p.compactify}
+    @products = Product.pull(page_num,items_per_page).collect{|p| p.as_json}
     @items_per_page = items_per_page
     @page_num = page_num.to_i
     @total_items = Product.count    

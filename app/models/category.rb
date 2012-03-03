@@ -11,7 +11,7 @@ class Category < ActiveRecord::Base
   def self.find_product_counts(categories)
     out = {} 
     categories.each do |cat|
-      catid = cat[:category_id]
+      catid = cat.category_id
       out[catid] = Product.count(:all, :conditions => "category_id = #{catid}")
     end
     return out
