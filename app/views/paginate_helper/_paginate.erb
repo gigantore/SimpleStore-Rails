@@ -3,7 +3,7 @@
   
   item_start = (items_per_page * (page_num-1) ) + 1
   
-  item_end = item_start + (items_per_page-1)
+  item_end = item_start + (items_per_page)
   item_end = total_items if item_end > total_items
 %>
 <div  style="<% if display_borders == true %>border-style:solid;border-width:2px;<% end %>" >
