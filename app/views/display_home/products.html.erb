@@ -38,14 +38,11 @@ function insertProducts( ){
 		var bHex = bgColorInHex.substring(5,7);
 		var bDec = parseInt(bHex,16);  
 		var color = rDec + "," + gDec + "," + bDec + ",0.6";
-		// var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;";
 		var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;-moz-border-radius: 15px;border-radius: 15px;";
-		// var topStyleCSS = "width:475px;float:left;clear:none;";
+		// var topStyleCSS = "width:475px;float:left;clear:none;"; // this is the old code
 		var topStyleCSS = "width:475px;"
 		if(i%2===0){
-			//don't assign anything
-			// topStyleCSS += "margin-top:20px;"
-			// topStyleCSS += "float:right;position:relative;"
+			// used to be nothing in this block
 			if (i === ll-1) {
 				
 			} else {
@@ -56,11 +53,12 @@ function insertProducts( ){
 		}
 		
 		///// COMPILE
+		// canvas_width and height are used to be here
 		var productTmpl = new ProductTmpl(product.product_id);
 		var str = productTmpl.compile(window.globals.tableRowTemplate,
 			$.extend(product,{
-				canvas_width: <%=canvas_size[:width]%>,
-				canvas_height: <%=canvas_size[:height]%>,
+				// canvas_width: <%=canvas_size[:width]%>,
+				// canvas_height: <%=canvas_size[:height]%>,
 				content_level_style: contentStyleCSS,
 				top_level_style: topStyleCSS
 			})	

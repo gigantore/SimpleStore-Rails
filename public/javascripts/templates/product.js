@@ -35,7 +35,7 @@ ProductTmpl.prototype.generateIds_ = function(productId){
  */
 ProductTmpl.prototype.compile = function(templateStr , replaceTmplsWith){ 
 	templateStr = String(templateStr); // copy
-	
+
 	// Modify the template   
 	for(var key in replaceTmplsWith){
 		var templateKey = "__" + key + "__"; 
