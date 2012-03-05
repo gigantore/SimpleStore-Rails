@@ -25,6 +25,7 @@ function insertProducts( ){
 	var productsCollection = $("#products-collection");
 	
 	var ll = window.globals.productIds.length; 
+	
 	for(var i = 0 ; i< ll ; i++){
 		var pid = window.globals.productIds[i];
 		var product = window.globals.productsById[pid];
@@ -37,15 +38,22 @@ function insertProducts( ){
 		var bHex = bgColorInHex.substring(5,7);
 		var bDec = parseInt(bHex,16);  
 		var color = rDec + "," + gDec + "," + bDec + ",0.6";
-		var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;";
-		//var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;-moz-border-radius: 15px;border-radius: 15px;";
-		var topStyleCSS = "width:475px;float:left;clear:none;";
+		// var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;";
+		var contentStyleCSS = "background-color:rgba(" + color + ");-webkit-border-radius: 15px;-moz-border-radius: 15px;border-radius: 15px;";
+		// var topStyleCSS = "width:475px;float:left;clear:none;";
+		var topStyleCSS = "width:475px;"
 		if(i%2===0){
 			//don't assign anything
 			// topStyleCSS += "margin-top:20px;"
+			// topStyleCSS += "float:right;position:relative;"
+			if (i === ll-1) {
+				
+			} else {
+				topStyleCSS += "float:left;"
+			}
 		}else{
-			topStyleCSS += "margin-left:50px;"// margin-top:20px;"
-		} 
+			topStyleCSS += "margin-right:50px;"// margin-top:20px;"
+		}
 		
 		///// COMPILE
 		var productTmpl = new ProductTmpl(product.product_id);
@@ -70,7 +78,9 @@ function insertProducts( ){
 		//	div.append("<br /><br />");
 		//}
 		
-	}; 
+	};
+	
+	
 }
  
 $(document).ready(function(){
@@ -83,6 +93,9 @@ $(document).ready(function(){
 		product.attr = $.parseJSON(product.attr_json);
 		productsById[product.product_id] = product;
 	}
+	if (ll%2===0) {
+	} else {
+	} 
 	window.globals.productsById = productsById;		
 	
 	// let's insert the tablerows
@@ -99,6 +112,9 @@ $(document).ready(function(){
 </div>
 
 <br />
-<!-- <%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%> -->
-<br /> 
+
+<!-- SUPPOSED TO BE products-collection -->
+
+<%= admin_paginator :page_num=>@page_num,:total_items => @total_items,  :js_callback => 'window.paginatorCallback'%>
+
 
