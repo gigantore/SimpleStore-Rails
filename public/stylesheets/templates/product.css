@@ -11,7 +11,9 @@
 	width:560px;
 	height:230px; 
 	padding: 20px;
-	margin:10px;
+/*	margin:10px;*/
+	margin-left: 10px;
+	margin-top: 20px;
 } 
 .product .content .left_section {
 	clear:none;
@@ -26,7 +28,7 @@
 	margin-left:220px; 
 }
 
-.product .name {
+/*.product .name {
 	width:250px;
 	font-weight:bold;
 	font-size:20px
@@ -34,11 +36,9 @@
 .product .description {
 	width:320px;
 	height:130px;
-}
+}*/
 
 .product .buttons_section{
 	vertical-align:middle;
 	padding-top:10px;
 }
-
-
